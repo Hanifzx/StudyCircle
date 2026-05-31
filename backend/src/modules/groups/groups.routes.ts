@@ -8,6 +8,8 @@ import {
   groupIdParamSchema,
   removeMemberSchema
 } from '../../validators/groups.validator';
+import { groupSessionsRouter } from '../sessions/sessions.routes';
+import { groupMaterialsRouter } from '../materials/materials.routes';
 
 const router = Router();
 const groupsController = new GroupsController();
@@ -27,5 +29,11 @@ router.post('/:groupId/join', validate(groupIdParamSchema), groupsController.joi
 router.post('/:groupId/leave', validate(groupIdParamSchema), groupsController.leaveGroup);
 router.get('/:groupId/members', validate(groupIdParamSchema), groupsController.getMembers);
 router.delete('/:groupId/members/:userId', validate(removeMemberSchema), groupsController.removeMember);
+
+// Sessions
+router.use('/:groupId/sessions', groupSessionsRouter);
+
+// Materials
+router.use('/:groupId/materials', groupMaterialsRouter);
 
 export default router;

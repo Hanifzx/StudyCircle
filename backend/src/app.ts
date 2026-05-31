@@ -21,11 +21,15 @@ app.get('/health', (req, res) => {
 import authRoutes from './modules/auth/auth.routes';
 import usersRoutes from './modules/users/users.routes';
 import groupsRoutes from './modules/groups/groups.routes';
+import { sessionsRouter } from './modules/sessions/sessions.routes';
+import { materialsRouter } from './modules/materials/materials.routes';
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);
 app.use('/api/v1/users', usersRoutes);
 app.use('/api/v1/groups', groupsRoutes);
+app.use('/api/v1/sessions', sessionsRouter);
+app.use('/api/v1/materials', materialsRouter);
 
 // Global Error Handler
 app.use(errorHandler);

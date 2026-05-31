@@ -23,7 +23,7 @@ export async function register(data: any) {
     semester: data.semester,
   });
 
-  const token = signToken({ userId: user.id, role: user.role });
+  const token = signToken({ userId: user.id });
 
   const { passwordHash: _, ...userWithoutPassword } = user;
   
@@ -41,7 +41,7 @@ export async function login(data: any) {
     throw { status: 401, message: 'Invalid credentials' };
   }
 
-  const token = signToken({ userId: user.id, role: user.role });
+  const token = signToken({ userId: user.id });
 
   const { passwordHash: _, ...userWithoutPassword } = user;
   

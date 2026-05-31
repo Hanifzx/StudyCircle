@@ -3,7 +3,6 @@ import { env } from './env';
 
 export interface JwtPayload {
   userId: string;
-  role: string;
 }
 
 export const signToken = (payload: JwtPayload): string => {

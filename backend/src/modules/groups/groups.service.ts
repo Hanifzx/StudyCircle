@@ -57,6 +57,8 @@ export class GroupsService {
     if (existingMember) throw new Error('You are already a member of this group');
 
     // 3. User cannot join a full group
+    // Note for MVP: There is a known race condition here. If multiple users join simultaneously
+    // when the group is 1 member away from maxMembers, it might exceed the limit.
     if (group._count.members >= group.maxMembers) {
       throw new Error('Group is already full');
     }
@@ -96,6 +98,10 @@ export class GroupsService {
 
     const targetMember = await this.repository.findMember(groupId, targetUserId);
     if (!targetMember) throw new Error('Target user is not a member of this group');
+
+    if (targetMember.role === "admin") {
+      throw new Error("Admins cannot remove other admins");
+    }
 
     return this.repository.removeMember(groupId, targetUserId);
   }
