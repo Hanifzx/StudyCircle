@@ -38,7 +38,7 @@ export async function logout(req: Request, res: Response, next: NextFunction) {
 
 export async function getMe(req: Request, res: Response, next: NextFunction) {
   try {
-    const userId = req.user!.userId;
+    const userId = (req as any).user!.userId;
     const user = await authService.getMe(userId);
     res.status(200).json({
       success: true,

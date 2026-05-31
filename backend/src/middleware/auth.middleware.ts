@@ -12,7 +12,7 @@ export const requireAuth = (req: Request, res: Response, next: NextFunction) => 
 
   try {
     const payload = verifyToken(token);
-    req.user = payload;
+    (req as any).user = payload;
     next();
   } catch (error) {
     return res.status(401).json({ success: false, message: 'Invalid or expired token' });

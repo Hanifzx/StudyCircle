@@ -1,5 +1,5 @@
 import { axiosInstance } from './axiosInstance';
-import { ApiResponse, AuthResponse, User } from '../types';
+import type { ApiResponse, AuthResponse, User } from '../types';
 
 export const authApi = {
   register: async (data: any): Promise<ApiResponse<AuthResponse>> => {
