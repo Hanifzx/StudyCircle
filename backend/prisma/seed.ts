@@ -35,17 +35,21 @@ async function main() {
   const defaultPassword = await bcrypt.hash('password123', 10);
   
   const dummyUsers = [
-    { username: 'zeleo', email: 'zeleo@example.com', fullName: 'Zeleo Mahasiswa', semester: 4, style: 'Visual' },
-    { username: 'john', email: 'john@example.com', fullName: 'John Doe', semester: 2, style: 'Auditory' },
-    { username: 'jane', email: 'jane@example.com', fullName: 'Jane Smith', semester: 6, style: 'Kinesthetic' },
-    { username: 'budi', email: 'budi@example.com', fullName: 'Budi Santoso', semester: 4, style: 'Reading/Writing' },
-    { username: 'siti', email: 'siti@example.com', fullName: 'Siti Aminah', semester: 4, style: 'Visual' },
+    { username: 'zeleo', email: 'zeleo@studycircle.ac.id', fullName: 'Zeleo Mahasiswa', semester: 4, style: 'Visual' },
+    { username: 'imam', email: 'imam@studycircle.ac.id', fullName: 'Imam Dzaqhoir', semester: 2, style: 'Auditory' },
+    { username: 'haris', email: 'haris@studycircle.ac.id', fullName: 'Haris Kurniawan', semester: 6, style: 'Kinesthetic' },
+    { username: 'hanif', email: 'hanif@studycircle.ac.id', fullName: 'Hanif Ibrahim', semester: 4, style: 'Reading/Writing' },
+    { username: 'siti', email: 'siti@studycircle.ac.id', fullName: 'Siti Aminah', semester: 4, style: 'Visual' },
   ];
 
   for (const u of dummyUsers) {
     const user = await prisma.user.upsert({
       where: { email: u.email },
-      update: {},
+      update: {
+        username: u.username,
+        fullName: u.fullName,
+        semester: u.semester,
+      },
       create: {
         username: u.username,
         email: u.email,
@@ -73,9 +77,9 @@ async function main() {
   console.log('Seeding progress...');
   const progressMap = [
     { username: 'zeleo', codes: ['IF-201', 'IF-202'] },
-    { username: 'john', codes: ['IF-101', 'IF-102'] },
-    { username: 'jane', codes: ['IF-301', 'IF-302', 'IF-401'] },
-    { username: 'budi', codes: ['IF-201', 'IF-301'] },
+    { username: 'imam', codes: ['IF-101', 'IF-102'] },
+    { username: 'haris', codes: ['IF-301', 'IF-302', 'IF-401'] },
+    { username: 'hanif', codes: ['IF-201', 'IF-301'] },
     { username: 'siti', codes: ['IF-201', 'IF-202'] },
   ];
 
@@ -96,9 +100,6 @@ async function main() {
 
   // 4. Seed Study Groups (With keywords for recommendation engine)
   console.log('Seeding study groups...');
-  // We use upsert based on name or simply clear and create to avoid duplicates
-  // But StudyGroup doesn't have a unique name constraint.
-  // We will check if it exists first.
   const groups = [
     {
       name: 'Web Dev Diagram Masters',
@@ -111,21 +112,21 @@ async function main() {
       name: 'IF-201 Discussion & Podcast',
       description: 'We learn by discussing and listening to coding podcasts.',
       subjectId: getSubj('IF-201'),
-      createdBy: getUser('john'),
+      createdBy: getUser('imam'),
       maxMembers: 10,
     },
     {
       name: 'Algo Practice Squad',
       description: 'Hands-on practice and building real mini-projects for Data Structures.',
       subjectId: getSubj('IF-202'),
-      createdBy: getUser('jane'),
+      createdBy: getUser('haris'),
       maxMembers: 4,
     },
     {
       name: 'Database Textbook Readers',
       description: 'Reading SQL textbooks, writing notes, and sharing articles.',
       subjectId: getSubj('IF-301'),
-      createdBy: getUser('budi'),
+      createdBy: getUser('hanif'),
       maxMembers: 8,
     },
   ];
@@ -149,7 +150,7 @@ async function main() {
 
       // Randomize some members
       if (g.name === 'Web Dev Diagram Masters') {
-        await prisma.member.create({ data: { studyGroupId: group.id, userId: getUser('budi'), role: 'member' } });
+        await prisma.member.create({ data: { studyGroupId: group.id, userId: getUser('hanif'), role: 'member' } });
       }
     }
   }
