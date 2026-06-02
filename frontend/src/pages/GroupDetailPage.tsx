@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Pencil, Trash2, LogOut, Users, BookOpen, Calendar } from 'lucide-react';
+import { ArrowLeft, Pencil, Trash2, LogOut, Users, BookOpen, Calendar, Plus } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { useSessions } from '../hooks/useSessions';
 import { useMaterials } from '../hooks/useMaterials';
@@ -20,9 +20,9 @@ import { MemberList } from '../components/features/groups/MemberList';
 import type { Group, Member } from '../types';
 
 const TABS = [
-  { key: 'sessions', label: 'Sessions' },
-  { key: 'materials', label: 'Materials' },
-  { key: 'members', label: 'Members' },
+  { key: 'sessions', label: 'Sesi Diskusi' },
+  { key: 'materials', label: 'Materi Belajar' },
+  { key: 'members', label: 'Anggota Grup' },
 ];
 
 export function GroupDetailPage() {
@@ -81,7 +81,7 @@ export function GroupDetailPage() {
       setEditName(groupRes.data.name);
       setEditDesc(groupRes.data.description ?? '');
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load group');
+      setError(err.response?.data?.error || 'Gagal memuat grup');
     } finally {
       setLoading(false);
     }
@@ -108,7 +108,7 @@ export function GroupDetailPage() {
       await fetchGroup();
       setIsEditing(false);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to update group');
+      setError(err.response?.data?.error || 'Gagal memperbarui grup');
     } finally {
       setSaving(false);
     }
@@ -120,7 +120,7 @@ export function GroupDetailPage() {
       await groupsApi.deleteGroup(groupId);
       navigate('/groups', { replace: true });
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to delete group');
+      setError(err.response?.data?.error || 'Gagal menghapus grup');
     } finally {
       setShowDeleteDialog(false);
     }
@@ -132,7 +132,7 @@ export function GroupDetailPage() {
       await groupsApi.leaveGroup(groupId);
       navigate('/groups', { replace: true });
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to leave group');
+      setError(err.response?.data?.error || 'Gagal keluar dari grup');
     }
   };
 
@@ -142,7 +142,7 @@ export function GroupDetailPage() {
       await groupsApi.removeMember(groupId, userId);
       setMembers((prev) => prev.filter((m) => m.userId !== userId));
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to remove member');
+      setError(err.response?.data?.error || 'Gagal mengeluarkan anggota');
     }
   };
 
@@ -152,7 +152,7 @@ export function GroupDetailPage() {
       await deleteMaterial(materialId);
       await fetchGroupMaterials(groupId);
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to delete material');
+      setError(err.response?.data?.error || 'Gagal menghapus materi');
     }
   };
 
@@ -164,7 +164,7 @@ export function GroupDetailPage() {
     return (
       <div className="text-center py-16">
         <p className="text-red-400 mb-4">{error}</p>
-        <Button onClick={() => navigate('/groups')}>Back to Groups</Button>
+        <Button onClick={() => navigate('/groups')}>Kembali ke Grup</Button>
       </div>
     );
   }
@@ -172,14 +172,14 @@ export function GroupDetailPage() {
   if (!group) return null;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in-up">
       {/* Back button */}
       <button
         onClick={() => navigate('/groups')}
         className="flex items-center gap-2 text-sm text-gray-400 hover:text-white transition-colors"
       >
         <ArrowLeft className="w-4 h-4" />
-        Back to Groups
+        Kembali ke Grup
       </button>
 
       {/* Header */}
@@ -187,7 +187,7 @@ export function GroupDetailPage() {
         {isEditing ? (
           <div className="space-y-4">
             <FormInput
-              label="Group Name"
+              label="Nama Grup"
               name="name"
               value={editName}
               onChange={(e) => setEditName(e.target.value)}
@@ -195,44 +195,49 @@ export function GroupDetailPage() {
             />
             <div className="flex flex-col gap-1.5">
               <label htmlFor="desc" className="text-sm font-medium text-gray-300">
-                Description
+                Deskripsi
               </label>
               <textarea
                 id="desc"
                 value={editDesc}
                 onChange={(e) => setEditDesc(e.target.value)}
                 rows={3}
-                className="w-full px-3.5 py-2.5 rounded-lg bg-[#1a2035] text-white placeholder-gray-500 border border-gray-700/50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all duration-200 text-sm resize-none"
+                className="w-full px-3.5 py-2.5 rounded-lg bg-dark-bg text-white placeholder-gray-500 border border-dark-border focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:outline-none transition-all duration-200 text-sm resize-none"
               />
             </div>
             <div className="flex gap-3">
               <Button onClick={handleSaveEdit} loading={saving}>
-                Save
+                Simpan
               </Button>
               <Button variant="ghost" onClick={() => setIsEditing(false)}>
-                Cancel
+                Batal
               </Button>
             </div>
           </div>
         ) : (
           <>
-            <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-              <div className="space-y-2">
-                <h1 className="text-2xl font-bold text-white">{group.name}</h1>
-                {group.description && (
-                  <p className="text-sm text-gray-400">{group.description}</p>
-                )}
-                <div className="flex flex-wrap items-center gap-3 text-sm text-gray-500">
-                  {group.subject && (
-                    <span className="flex items-center gap-1.5">
-                      <BookOpen className="w-4 h-4" />
-                      {group.subject.name}
-                    </span>
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-6">
+              <div className="flex items-start gap-4">
+                <div className="w-16 h-16 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10">
+                  <BookOpen className="w-8 h-8 text-primary-400" />
+                </div>
+                <div className="space-y-2">
+                  <h1 className="text-2xl font-bold text-white">{group.name}</h1>
+                  {group.description && (
+                    <p className="text-sm text-gray-400">{group.description}</p>
                   )}
-                  <span className="flex items-center gap-1.5">
-                    <Users className="w-4 h-4" />
-                    {members.length}/{group.maxMembers} members
-                  </span>
+                  <div className="flex flex-wrap items-center gap-4 text-sm text-gray-500 pt-2">
+                    {group.subject && (
+                      <span className="flex items-center gap-1.5">
+                        <BookOpen className="w-4 h-4" />
+                        {group.subject.name}
+                      </span>
+                    )}
+                    <span className="flex items-center gap-1.5">
+                      <Users className="w-4 h-4" />
+                      {members.length}/{group.maxMembers} Anggota
+                    </span>
+                  </div>
                 </div>
               </div>
 
@@ -240,19 +245,19 @@ export function GroupDetailPage() {
                 {isAdmin && (
                   <>
                     <Button size="sm" variant="secondary" onClick={() => setIsEditing(true)}>
-                      <Pencil className="w-4 h-4" />
-                      Edit
+                      <Pencil className="w-4 h-4 mr-1.5" />
+                      Ubah
                     </Button>
                     <Button size="sm" variant="danger" onClick={() => setShowDeleteDialog(true)}>
-                      <Trash2 className="w-4 h-4" />
-                      Delete
+                      <Trash2 className="w-4 h-4 mr-1.5" />
+                      Hapus
                     </Button>
                   </>
                 )}
                 {isMember && !isAdmin && (
                   <Button size="sm" variant="danger" onClick={handleLeaveGroup}>
-                    <LogOut className="w-4 h-4" />
-                    Leave Group
+                    <LogOut className="w-4 h-4 mr-1.5" />
+                    Keluar Grup
                   </Button>
                 )}
               </div>
@@ -270,15 +275,15 @@ export function GroupDetailPage() {
       <Tabs tabs={TABS} activeTab={activeTab} onTabChange={setActiveTab} />
 
       {/* Tab Content */}
-      <div>
+      <div className="mt-6">
         {/* Sessions Tab */}
         {activeTab === 'sessions' && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             {isAdmin && (
               <div className="flex justify-end">
                 <Button size="sm" onClick={() => setShowCreateSession(true)}>
-                  <Calendar className="w-4 h-4" />
-                  Create Session
+                  <Plus className="w-4 h-4 mr-1.5" />
+                  Buat Jadwal Diskusi
                 </Button>
               </div>
             )}
@@ -287,11 +292,11 @@ export function GroupDetailPage() {
             ) : sessions.length === 0 ? (
               <EmptyState
                 icon={<Calendar className="w-10 h-10" />}
-                title="No sessions yet"
-                description="Schedule a study session for this group."
+                title="Belum ada sesi diskusi"
+                description="Jadwalkan sesi belajar pertama untuk grup ini."
               />
             ) : (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 {sessions.map((session) => (
                   <SessionCard
                     key={session.id}
@@ -306,21 +311,22 @@ export function GroupDetailPage() {
 
         {/* Materials Tab */}
         {activeTab === 'materials' && (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="flex justify-end">
               <Button size="sm" onClick={() => setShowUploadMaterial(true)}>
-                Upload Material
+                <Plus className="w-4 h-4 mr-1.5" />
+                Unggah Materi
               </Button>
             </div>
             {materialsLoading ? (
               <LoadingSpinner className="py-12" />
             ) : materials.length === 0 ? (
               <EmptyState
-                title="No materials yet"
-                description="Upload study materials for this group."
+                title="Belum ada materi"
+                description="Unggah materi belajar untuk grup ini."
               />
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-4">
                 {materials.map((material) => (
                   <MaterialCard
                     key={material.id}
@@ -365,9 +371,9 @@ export function GroupDetailPage() {
       )}
       <ConfirmDialog
         isOpen={showDeleteDialog}
-        title="Delete Group"
-        message="Are you sure you want to delete this group? This action cannot be undone."
-        confirmLabel="Delete"
+        title="Hapus Grup"
+        message="Apakah Anda yakin ingin menghapus grup ini? Tindakan ini tidak dapat dibatalkan."
+        confirmLabel="Hapus"
         variant="danger"
         onConfirm={handleDeleteGroup}
         onCancel={() => setShowDeleteDialog(false)}

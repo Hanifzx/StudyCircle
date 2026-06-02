@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Users } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -6,6 +6,8 @@ import { useGroups } from '../hooks/useGroups';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { EmptyState } from '../components/common/EmptyState';
 import { Button } from '../components/common/Button';
+import { FormInput } from '../components/common/FormInput';
+import { Tabs } from '../components/common/Tabs';
 import { GroupCard } from '../components/features/groups/GroupCard';
 import { CreateGroupModal } from '../components/features/groups/CreateGroupModal';
 
@@ -14,31 +16,17 @@ export function GroupsPage() {
   const { user } = useAuth();
   const { groups, loading, joinGroup, refetch } = useGroups();
 
-  const [search, setSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
+  const [activeTab, setActiveTab] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [_joiningId, setJoiningId] = useState<string | null>(null);
   const [joinError, setJoinError] = useState<string | null>(null);
 
-  const filteredGroups = groups.filter((g) =>
-    g.name.toLowerCase().includes(search.toLowerCase())
-  );
-
-  const handleJoin = async (groupId: string) => {
-    try {
-      setJoiningId(groupId);
-      setJoinError(null);
-      await joinGroup(groupId);
-    } catch (err: any) {
-      const status = err.response?.status;
-      if (status === 409) {
-        setJoinError('You are already a member of this group.');
-      } else {
-        setJoinError(err.response?.data?.error || 'Failed to join group');
-      }
-    } finally {
-      setJoiningId(null);
-    }
-  };
+  const tabs = [
+    { key: 'all', label: 'Semua' },
+    { key: 'my_groups', label: 'Grup Saya' },
+    { key: 'available', label: 'Tersedia' },
+  ];
 
   const isMember = (group: typeof groups[0]) => {
     if (!user) return false;
@@ -48,31 +36,83 @@ export function GroupsPage() {
     );
   };
 
+  const filteredGroups = useMemo(() => {
+    let result = groups;
+
+    if (searchQuery) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(g => 
+        g.name.toLowerCase().includes(q) || 
+        g.description?.toLowerCase().includes(q)
+      );
+    }
+
+    switch (activeTab) {
+      case 'my_groups':
+        result = result.filter(g => isMember(g));
+        break;
+      case 'available':
+        result = result.filter(g => !isMember(g) && (g._count?.members ?? 0) < g.maxMembers);
+        break;
+      default:
+        break;
+    }
+
+    return result;
+  }, [groups, activeTab, searchQuery, user]);
+
+  const handleJoin = async (groupId: string) => {
+    try {
+      setJoiningId(groupId);
+      setJoinError(null);
+      await joinGroup(groupId);
+    } catch (err: any) {
+      const status = err.response?.status;
+      if (status === 409) {
+        setJoinError('Anda sudah menjadi anggota grup ini.');
+      } else {
+        setJoinError(err.response?.data?.error || 'Gagal bergabung dengan grup');
+      }
+    } finally {
+      setJoiningId(null);
+    }
+  };
+
   if (loading) {
     return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h1 className="text-2xl font-bold text-white">Study Groups</h1>
+        <div>
+          <h1 className="text-2xl font-bold text-white">Grup Belajar</h1>
+          <p className="text-gray-400 text-sm mt-1">Temukan dan bergabung dengan grup yang sesuai.</p>
+        </div>
         <Button onClick={() => setShowCreateModal(true)}>
-          <Plus className="w-4 h-4" />
-          Create Group
+          <Plus className="w-4 h-4 mr-2" />
+          Buat Grup Baru
         </Button>
       </div>
 
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500" />
-        <input
-          type="text"
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search groups..."
-          className="w-full pl-10 pr-4 py-2.5 rounded-lg bg-[#1a2035] text-white placeholder-gray-500 border border-gray-700/50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all duration-200 text-sm"
+      {/* Filters and Search */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <Tabs 
+          tabs={tabs} 
+          activeTab={activeTab} 
+          onTabChange={setActiveTab} 
         />
+        
+        <div className="w-full md:w-64">
+          <FormInput
+            name="search"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Cari grup..."
+            leadingIcon={<Search className="w-4 h-4" />}
+          />
+        </div>
       </div>
 
       {/* Join Error Toast */}
@@ -92,23 +132,23 @@ export function GroupsPage() {
       {filteredGroups.length === 0 ? (
         <EmptyState
           icon={<Users className="w-12 h-12" />}
-          title={search ? 'No groups found' : 'No study groups yet'}
+          title={searchQuery ? 'Grup tidak ditemukan' : 'Belum ada grup'}
           description={
-            search
-              ? 'Try adjusting your search terms.'
-              : 'Create the first study group to get started!'
+            searchQuery
+              ? 'Coba gunakan kata kunci pencarian yang lain.'
+              : 'Jadilah yang pertama membuat grup belajar!'
           }
           action={
-            !search ? (
+            !searchQuery ? (
               <Button onClick={() => setShowCreateModal(true)}>
-                <Plus className="w-4 h-4" />
-                Create Group
+                <Plus className="w-4 h-4 mr-2" />
+                Buat Grup
               </Button>
             ) : undefined
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {filteredGroups.map((group) => (
             <GroupCard
               key={group.id}

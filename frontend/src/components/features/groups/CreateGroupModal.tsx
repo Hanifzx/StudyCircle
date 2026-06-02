@@ -39,15 +39,15 @@ export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModa
       onCreated();
       onClose();
     } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to create group');
+      setError(err.response?.data?.error || 'Gagal membuat grup');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Create Study Group">
-      <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <Modal isOpen={isOpen} onClose={onClose} title="Buat Grup Belajar Baru">
+      <form onSubmit={handleSubmit} className="flex flex-col gap-4 mt-4">
         {error && (
           <p className="text-sm text-red-400 bg-red-500/10 px-3 py-2 rounded-lg">
             {error}
@@ -55,27 +55,27 @@ export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModa
         )}
 
         <FormInput
-          label="Group Name"
+          label="Nama Grup"
           name="name"
           value={name}
           onChange={(e) => setName(e.target.value)}
-          placeholder="Enter group name"
+          placeholder="Misal: Aljabar Linear B"
           required
         />
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="subjectId" className="text-sm font-medium text-gray-300">
-            Subject
+            Mata Kuliah
           </label>
           <select
             id="subjectId"
             name="subjectId"
             value={subjectId}
             onChange={(e) => setSubjectId(e.target.value)}
-            className="w-full px-3.5 py-2.5 rounded-lg bg-[#1a2035] text-white border border-gray-700/50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all duration-200 text-sm"
+            className="w-full px-3.5 py-2.5 rounded-lg bg-dark-bg text-white border border-dark-border focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:outline-none transition-all duration-200 text-sm"
             required
           >
-            <option value="" disabled>Select a subject</option>
+            <option value="" disabled>Pilih mata kuliah</option>
             <option value="3554f848-3771-40b1-927f-331f10f0726c">IF-101 Introduction to Programming</option>
             <option value="6ad1fbf5-2119-4a31-b831-2d1370a799ca">IF-102 Calculus I</option>
             <option value="f448423d-05d3-466f-bab4-364371b54b14">IF-201 Advanced Web Programming</option>
@@ -89,36 +89,34 @@ export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModa
 
         <div className="flex flex-col gap-1.5">
           <label htmlFor="description" className="text-sm font-medium text-gray-300">
-            Description
+            Deskripsi Grup
           </label>
           <textarea
             id="description"
             name="description"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
-            placeholder="Enter group description (optional)"
+            placeholder="Tuliskan tujuan atau fokus belajar grup ini"
             rows={3}
-            className="w-full px-3.5 py-2.5 rounded-lg bg-[#1a2035] text-white placeholder-gray-500 border border-gray-700/50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all duration-200 text-sm resize-none"
+            className="w-full px-3.5 py-2.5 rounded-lg bg-dark-bg text-white placeholder-gray-500 border border-dark-border focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:outline-none transition-all duration-200 text-sm resize-none"
           />
         </div>
 
-
-
         <FormInput
-          label="Max Members"
+          label="Maksimal Anggota"
           name="maxMembers"
           type="number"
           value={maxMembers}
           onChange={(e) => setMaxMembers(e.target.value)}
-          placeholder="e.g. 10 (optional)"
+          placeholder="Misal: 10 (opsional)"
         />
 
-        <div className="flex justify-end gap-3 pt-2">
-          <Button variant="ghost" onClick={onClose} disabled={loading}>
-            Cancel
+        <div className="flex justify-end gap-3 mt-4">
+          <Button type="button" variant="ghost" onClick={onClose} disabled={loading}>
+            Batal
           </Button>
           <Button type="submit" loading={loading} disabled={!name.trim() || !subjectId.trim()}>
-            Create Group
+            Buat Grup
           </Button>
         </div>
       </form>

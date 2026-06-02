@@ -4,10 +4,13 @@ import {
   GraduationCap,
   LayoutDashboard,
   Users,
-  TrendingUp,
-  UserCircle,
+  Search,
+  Settings,
+  HelpCircle,
   X,
+  Plus,
 } from 'lucide-react';
+import { Button } from '../common/Button';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -15,10 +18,10 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { to: '/dashboard', label: 'Dashboard', icon: LayoutDashboard, end: true },
-  { to: '/groups', label: 'Groups', icon: Users, end: false },
-  { to: '/progress', label: 'Progress', icon: TrendingUp, end: false },
-  { to: '/profile', label: 'Profile', icon: UserCircle, end: false },
+  { to: '/dashboard', label: 'Beranda', icon: LayoutDashboard, end: true },
+  { to: '/progress', label: 'Grup Saya', icon: Users, end: false }, // mapping Progress to Grup Saya for now, wait we should map to actual paths
+  { to: '/groups', label: 'Cari Grup', icon: Search, end: false },
+  { to: '/profile', label: 'Pengaturan', icon: Settings, end: false },
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
@@ -34,17 +37,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-60 bg-[#0B0F19]/60 backdrop-blur-2xl border-r border-white/5 flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-64 bg-[#14141A] border-r border-dark-border flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Brand / Logo */}
-        <div className="flex items-center justify-between h-16 px-5 border-b border-white/5 shrink-0">
-          <div className="flex items-center gap-2.5 group">
-            <GraduationCap className="h-7 w-7 text-indigo-400 group-hover:text-indigo-300 transition-colors" />
-            <span className="text-lg font-bold text-white tracking-tight">
-              StudyCircle
-            </span>
+        <div className="flex items-center justify-between h-[72px] px-6 shrink-0">
+          <div className="p-6 mb-2">
+            <div className="flex items-center gap-3 mb-2">
+              <img src="/icon.svg" alt="StudyCircle Logo" className="w-6 h-6" />
+              <h1 className="text-2xl font-bold text-white tracking-tight">StudyCircle</h1>
+            </div>
+            <p className="text-sm text-gray-400">Platform Kolaborasi</p>
           </div>
           {/* Close button – mobile only */}
           <button
@@ -56,8 +60,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </button>
         </div>
 
+        {/* Primary Action */}
+        <div className="px-5 mb-4 mt-2 shrink-0">
+          <Button variant="primary" className="w-full justify-center">
+            <Plus className="w-4 h-4" />
+            Buat Grup Baru
+          </Button>
+        </div>
+
         {/* Navigation links */}
-        <nav className="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+        <nav className="flex-1 overflow-y-auto py-2 space-y-1">
           {navItems.map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={to}
@@ -65,10 +77,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               end={end}
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-indigo-500/10 ${
+                `flex items-center gap-3 px-6 py-3 text-sm font-medium transition-all duration-200 border-l-2 ${
                   isActive
-                    ? 'bg-gradient-to-r from-indigo-600/20 to-purple-600/20 text-indigo-300 border border-indigo-500/20'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5 border border-transparent'
+                    ? 'bg-white/5 text-primary-500 border-primary-500'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5 border-transparent'
                 }`
               }
             >
@@ -78,9 +90,22 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           ))}
         </nav>
 
-        {/* Footer hint */}
-        <div className="px-5 py-4 border-t border-white/5 shrink-0">
-          <p className="text-xs text-gray-500 font-medium">© 2026 StudyCircle</p>
+        {/* Footer / Help */}
+        <div className="px-0 py-4 shrink-0">
+          <NavLink
+            to="/help"
+            onClick={onClose}
+            className={({ isActive }) =>
+              `flex items-center gap-3 px-6 py-3 text-sm font-medium transition-all duration-200 border-l-2 ${
+                isActive
+                  ? 'bg-white/5 text-primary-500 border-primary-500'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5 border-transparent'
+              }`
+            }
+          >
+            <HelpCircle className="h-5 w-5 shrink-0" />
+            Bantuan
+          </NavLink>
         </div>
       </aside>
     </>

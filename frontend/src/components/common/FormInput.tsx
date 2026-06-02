@@ -11,6 +11,8 @@ interface FormInputProps {
   disabled?: boolean;
   required?: boolean;
   className?: string;
+  leadingIcon?: React.ReactNode;
+  trailingIcon?: React.ReactNode;
 }
 
 export const FormInput: React.FC<FormInputProps> = ({
@@ -24,6 +26,8 @@ export const FormInput: React.FC<FormInputProps> = ({
   disabled = false,
   required = false,
   className = "",
+  leadingIcon,
+  trailingIcon,
 }) => {
   return (
     <div className={`flex flex-col gap-1.5 ${className}`}>
@@ -36,28 +40,42 @@ export const FormInput: React.FC<FormInputProps> = ({
           {required && <span className="text-red-400 ml-1">*</span>}
         </label>
       )}
-      <input
-        id={name}
-        type={type}
-        name={name}
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        disabled={disabled}
-        required={required}
-        className={`
-          w-full px-3.5 py-2.5 rounded-lg
-          bg-[#1a2035] text-white placeholder-gray-500
-          border transition-all duration-200
-          ${error
-            ? "border-red-500 focus:ring-red-500 focus:border-red-500"
-            : "border-gray-700/50 focus:ring-indigo-500 focus:border-indigo-500"
-          }
-          focus:outline-none focus:ring-2 focus:ring-offset-0
-          disabled:opacity-50 disabled:cursor-not-allowed
-          text-sm
-        `}
-      />
+      <div className="relative flex items-center">
+        {leadingIcon && (
+          <div className="absolute left-3.5 text-gray-400">
+            {leadingIcon}
+          </div>
+        )}
+        <input
+          id={name}
+          type={type}
+          name={name}
+          value={value}
+          onChange={onChange}
+          placeholder={placeholder}
+          disabled={disabled}
+          required={required}
+          className={`
+            w-full py-2.5 rounded-lg
+            bg-dark-card text-white placeholder-gray-500
+            border transition-all duration-200
+            ${leadingIcon ? "pl-10" : "pl-3.5"}
+            ${trailingIcon ? "pr-10" : "pr-3.5"}
+            ${error
+              ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
+              : "border-dark-border focus:ring-primary-500/20 focus:border-primary-500"
+            }
+            focus:outline-none focus:ring-2 focus:ring-offset-0
+            disabled:opacity-50 disabled:cursor-not-allowed
+            text-sm
+          `}
+        />
+        {trailingIcon && (
+          <div className="absolute right-3.5 text-gray-400">
+            {trailingIcon}
+          </div>
+        )}
+      </div>
       {error && (
         <p className="text-xs text-red-400 mt-0.5">{error}</p>
       )}
