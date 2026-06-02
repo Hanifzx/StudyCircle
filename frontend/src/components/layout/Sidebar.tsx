@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useState } from 'react';
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -10,6 +10,7 @@ import {
   Plus,
 } from 'lucide-react';
 import { Button } from '../common/Button';
+import { CreateGroupModal } from '../features/groups/CreateGroupModal';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -24,6 +25,9 @@ const navItems = [
 ];
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const navigate = useNavigate();
+
   return (
     <>
       {/* Mobile overlay backdrop */}
@@ -61,7 +65,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
         {/* Primary Action */}
         <div className="px-5 mb-4 mt-2 shrink-0">
-          <Button variant="primary" className="w-full justify-center">
+          <Button variant="primary" className="w-full justify-center" onClick={() => setShowCreateModal(true)}>
             <Plus className="w-4 h-4" />
             Buat Grup Baru
           </Button>
@@ -107,6 +111,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </NavLink>
         </div>
       </aside>
+
+      {/* Create Group Modal */}
+      <CreateGroupModal
+        isOpen={showCreateModal}
+        onClose={() => setShowCreateModal(false)}
+        onCreated={() => {
+          setShowCreateModal(false);
+          navigate('/groups');
+        }}
+      />
     </>
   );
 };
