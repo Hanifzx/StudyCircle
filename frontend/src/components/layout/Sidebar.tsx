@@ -36,16 +36,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-0 left-0 z-50 h-full w-64 bg-[#14141A] border-r border-dark-border flex flex-col transition-transform duration-300 ease-in-out lg:translate-x-0 ${
+        className={`fixed top-0 left-0 z-50 h-full w-64 lg:h-[calc(100vh-2rem)] lg:top-4 lg:left-4 lg:rounded-3xl glass-panel border-r-0 flex flex-col transition-all duration-300 ease-in-out lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
         {/* Brand / Logo */}
-        <div className="flex items-center justify-between h-[72px] px-6 shrink-0">
-          <div className="p-6 mb-2">
-            <div className="flex items-center gap-3 mb-2">
-              <img src="/icon.svg" alt="StudyCircle Logo" className="w-6 h-6" />
-              <h1 className="text-2xl font-bold text-white tracking-tight">StudyCircle</h1>
+        <div className="flex items-center justify-between h-[72px] px-6 shrink-0 pt-6">
+          <div className="p-4 mb-2">
+            <div className="flex items-center gap-3 mb-1 mt-2">
+              <img src="/icon.svg" alt="StudyCircle Logo" className="w-8 h-8 animate-float" />
+              <h1 className="text-xl font-bold text-gradient-animated tracking-tight">StudyCircle</h1>
             </div>
             <p className="text-sm text-gray-400">Platform Kolaborasi</p>
           </div>
@@ -76,10 +76,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
               end={end}
               onClick={onClose}
               className={({ isActive }) =>
-                `flex items-center gap-3 px-6 py-3 text-sm font-medium transition-all duration-200 border-l-2 ${
+                `flex items-center gap-3 px-6 py-3 text-sm font-medium transition-all duration-300 mx-3 rounded-xl ${
                   isActive
-                    ? 'bg-white/5 text-primary-500 border-primary-500'
-                    : 'text-gray-400 hover:text-white hover:bg-white/5 border-transparent'
+                    ? 'bg-primary-500/15 text-primary-400 shadow-[0_0_15px_rgba(203,166,247,0.15)] scale-[1.02]'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
                 }`
               }
             >
@@ -95,10 +95,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
             to="/help"
             onClick={onClose}
             className={({ isActive }) =>
-              `flex items-center gap-3 px-6 py-3 text-sm font-medium transition-all duration-200 border-l-2 ${
+              `flex items-center gap-3 px-6 py-3 text-sm font-medium transition-all duration-300 mx-3 rounded-xl ${
                 isActive
-                  ? 'bg-white/5 text-primary-500 border-primary-500'
-                  : 'text-gray-400 hover:text-white hover:bg-white/5 border-transparent'
+                  ? 'bg-primary-500/15 text-primary-400 shadow-[0_0_15px_rgba(203,166,247,0.15)] scale-[1.02]'
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`
             }
           >

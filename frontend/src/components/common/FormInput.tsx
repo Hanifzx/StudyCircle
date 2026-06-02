@@ -27,16 +27,16 @@ export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
             ref={ref}
             {...props}
             className={`
-              w-full py-2.5 rounded-lg
-              bg-dark-card text-white placeholder-gray-500
-              border transition-all duration-200
-              ${leadingIcon ? "pl-10" : "pl-3.5"}
-              ${trailingIcon ? "pr-10" : "pr-3.5"}
+              w-full py-3 rounded-xl
+              bg-white/[0.03] backdrop-blur-md text-white placeholder-gray-500
+              border transition-all duration-300 shadow-inner
+              ${leadingIcon ? "pl-11" : "pl-4"}
+              ${trailingIcon ? "pr-11" : "pr-4"}
               ${error
-                ? "border-red-500 focus:ring-red-500/20 focus:border-red-500"
-                : "border-dark-border focus:ring-primary-500/20 focus:border-primary-500"
+                ? "border-red-500 focus:ring-red-500/20 focus:border-red-500 bg-red-500/5"
+                : "border-white/10 hover:border-white/20 focus:bg-white/[0.05] focus:ring-primary-500/30 focus:border-primary-500"
               }
-              focus:outline-none focus:ring-2 focus:ring-offset-0
+              focus:outline-none focus:ring-4 focus:ring-offset-0
               disabled:opacity-50 disabled:cursor-not-allowed
               text-sm
             `}

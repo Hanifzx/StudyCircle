@@ -46,6 +46,7 @@ export function GroupDetailPage() {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showCreateSession, setShowCreateSession] = useState(false);
   const [showUploadMaterial, setShowUploadMaterial] = useState(false);
+  const [materialToDelete, setMaterialToDelete] = useState<string | null>(null);
 
   // Hooks
   const {
@@ -146,13 +147,15 @@ export function GroupDetailPage() {
     }
   };
 
-  const handleDeleteMaterial = async (materialId: string) => {
-    if (!groupId) return;
+  const handleDeleteMaterial = async () => {
+    if (!groupId || !materialToDelete) return;
     try {
-      await deleteMaterial(materialId);
+      await deleteMaterial(materialToDelete);
       await fetchGroupMaterials(groupId);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Gagal menghapus materi');
+    } finally {
+      setMaterialToDelete(null);
     }
   };
 
@@ -333,7 +336,7 @@ export function GroupDetailPage() {
                     material={material}
                     canDelete={isAdmin || material.uploaderId === user?.id}
                     onDownload={() => downloadMaterial(material.id)}
-                    onDelete={() => handleDeleteMaterial(material.id)}
+                    onDelete={() => setMaterialToDelete(material.id)}
                   />
                 ))}
               </div>
@@ -377,6 +380,15 @@ export function GroupDetailPage() {
         variant="danger"
         onConfirm={handleDeleteGroup}
         onCancel={() => setShowDeleteDialog(false)}
+      />
+      <ConfirmDialog
+        isOpen={!!materialToDelete}
+        title="Hapus Materi"
+        message="Apakah Anda yakin ingin menghapus materi ini? File dan data materi akan hilang secara permanen."
+        confirmLabel="Hapus Materi"
+        variant="danger"
+        onConfirm={handleDeleteMaterial}
+        onCancel={() => setMaterialToDelete(null)}
       />
     </div>
   );

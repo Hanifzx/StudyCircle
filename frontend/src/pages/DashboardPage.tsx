@@ -67,12 +67,12 @@ export function DashboardPage() {
   return (
     <div className="space-y-10 pb-12 animate-fade-in-up">
       {/* Welcome Banner */}
-      <div>
-        <h1 className="text-3xl font-bold text-white mb-2">
+      <div className="mb-4">
+        <h1 className="text-4xl font-bold mb-3 text-gradient-animated">
           Selamat Datang, {user?.fullName?.split(' ')[0] ?? 'Mahasiswa'}!
         </h1>
-        <p className="text-gray-400 text-lg">
-          Siap untuk sesi belajar hari ini?
+        <p className="text-gray-400 text-lg flex items-center gap-2">
+          Siap untuk sesi belajar hari ini? 🚀
         </p>
       </div>
 
@@ -80,12 +80,14 @@ export function DashboardPage() {
       <section>
         <h2 className="text-xl font-bold text-white mb-4">Sesi Terdekat</h2>
         {upcomingSessionGroup ? (
-          <div className="bg-[#1C1C24] rounded-2xl border border-dark-border p-6 flex flex-col md:flex-row md:items-center justify-between gap-6 shadow-xl relative overflow-hidden">
-            <div className="absolute right-0 top-0 w-64 h-64 bg-primary-500/10 rounded-full blur-3xl translate-x-1/3 -translate-y-1/3 pointer-events-none" />
+          <div className="glass-panel rounded-3xl p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden group hover:shadow-[0_8px_32px_0_rgba(203,166,247,0.2)] transition-shadow duration-500">
+            {/* Holographic background elements */}
+            <div className="absolute right-0 top-0 w-[500px] h-[500px] bg-primary-500/10 rounded-full blur-[80px] translate-x-1/3 -translate-y-1/3 pointer-events-none group-hover:bg-primary-500/20 transition-colors duration-700" />
+            <div className="absolute left-0 bottom-0 w-64 h-64 bg-secondary-500/10 rounded-full blur-[60px] -translate-x-1/2 translate-y-1/2 pointer-events-none group-hover:bg-secondary-500/20 transition-colors duration-700" />
             
-            <div className="flex items-start gap-4 z-10">
-              <div className="w-14 h-14 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10">
-                <span className="text-2xl">{'{}'}</span>
+            <div className="flex items-start gap-5 z-10">
+              <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-primary-500/30 transition-colors duration-500">
+                <span className="text-3xl">{'{}'}</span>
               </div>
               <div className="flex flex-col gap-2">
                 <Badge variant="solid-warning" className="w-fit">JADWAL Hari ini, 14:00 WITA</Badge>
@@ -148,8 +150,12 @@ export function DashboardPage() {
                   group={group}
                   isMember={isMember}
                   onJoin={async () => {
-                    await joinGroup(group.id);
-                    navigate(`/groups/${group.id}`);
+                    try {
+                      await joinGroup(group.id);
+                      navigate(`/groups/${group.id}`);
+                    } catch (err: any) {
+                      alert(err.response?.data?.message || 'Gagal bergabung dengan grup');
+                    }
                   }}
                   onClick={() => navigate(`/groups/${group.id}`)}
                 />

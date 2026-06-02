@@ -18,11 +18,14 @@ export function GroupCard({ group, isMember, onJoin, onClick }: GroupCardProps) 
   const slotsLeft = maxMembers - memberCount;
 
   return (
-    <Card hoverable onClick={onClick} className="p-5 flex flex-col h-full">
+    <Card hoverable onClick={onClick} className="p-5 flex flex-col h-full group relative overflow-hidden">
+      {/* Decorative gradient blob */}
+      <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      
       {/* Header */}
-      <div className="flex items-start justify-between gap-3 mb-4">
-        <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center shrink-0 border border-white/10">
-          <BookOpen className="w-5 h-5 text-gray-300" />
+      <div className="flex items-start justify-between gap-3 mb-4 relative z-10">
+        <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-primary-500/50 group-hover:shadow-[0_0_15px_rgba(203,166,247,0.3)] group-hover:-translate-y-1 transition-all duration-300">
+          <BookOpen className="w-5 h-5 text-gray-300 group-hover:text-primary-400 transition-colors" />
         </div>
         
         {isMember ? (
@@ -36,7 +39,7 @@ export function GroupCard({ group, isMember, onJoin, onClick }: GroupCardProps) 
 
       {/* Content */}
       <div className="flex flex-col gap-2 flex-grow">
-        <h3 className="text-lg font-semibold text-white line-clamp-1">
+        <h3 className="text-lg font-semibold text-white group-hover:text-primary-400 transition-colors duration-300 line-clamp-1 relative z-10">
           {group.name}
         </h3>
         {group.description && (

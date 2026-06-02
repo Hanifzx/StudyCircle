@@ -16,15 +16,15 @@ interface ButtonProps {
 
 const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-primary-500 text-dark-bg hover:bg-primary-600 focus:ring-primary-500 shadow-md",
+    "bg-gradient-to-r from-primary-500 to-secondary-500 text-dark-bg hover:from-primary-400 hover:to-secondary-pink focus:ring-primary-500 shadow-[0_0_15px_rgba(203,166,247,0.4)] hover:shadow-[0_0_25px_rgba(203,166,247,0.6)] font-bold",
   secondary:
-    "bg-white/5 text-gray-200 hover:bg-white/10 focus:ring-gray-500 border border-white/10",
+    "bg-white/5 text-white hover:bg-white/10 focus:ring-gray-500 border border-white/10 backdrop-blur-md hover:border-white/20 hover:shadow-[0_4px_20px_rgba(255,255,255,0.05)]",
   danger:
-    "bg-red-500 text-white hover:bg-red-600 focus:ring-red-500",
+    "bg-red-500/80 text-white hover:bg-red-500 focus:ring-red-500 shadow-[0_0_15px_rgba(239,68,68,0.3)] hover:shadow-[0_0_25px_rgba(239,68,68,0.5)]",
   ghost:
     "bg-transparent text-gray-300 hover:text-white hover:bg-white/10 focus:ring-gray-500 transition-colors",
   outline:
-    "bg-transparent border border-white/20 text-gray-300 hover:text-white hover:border-white/40 hover:bg-white/5 focus:ring-gray-500",
+    "bg-transparent border border-white/20 text-gray-300 hover:text-white hover:border-primary-500 hover:bg-primary-500/10 hover:shadow-[0_0_15px_rgba(203,166,247,0.2)] focus:ring-primary-500",
 };
 
 const sizeStyles: Record<ButtonSize, string> = {
@@ -56,7 +56,7 @@ export const Button: React.FC<ButtonProps> = ({
         focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-dark-bg
         ${variantStyles[variant]}
         ${sizeStyles[size]}
-        ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.97]"}
+        ${isDisabled ? "opacity-50 cursor-not-allowed" : "cursor-pointer active:scale-[0.95] hover:-translate-y-0.5"}
         ${className}
       `}
     >

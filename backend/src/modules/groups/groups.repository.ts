@@ -40,6 +40,9 @@ export class GroupsRepository {
       where,
       include: {
         subject: true,
+        members: {
+          select: { userId: true }
+        },
         _count: {
           select: { members: true }
         }

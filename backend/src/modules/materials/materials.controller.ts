@@ -55,7 +55,7 @@ export class MaterialsController {
         fileSize: m.fileSize,
         uploadedAt: m.uploadedAt,
         uploaderName: m.uploader?.fullName || m.uploader?.username || 'Unknown',
-        uploaderId: m.uploaderId
+        uploaderId: m.uploadedBy
       }));
       res.status(200).json({ data: mappedMaterials });
     } catch (error: any) {
