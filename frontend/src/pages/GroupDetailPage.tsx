@@ -17,9 +17,11 @@ import { CreateSessionModal } from '../components/features/sessions/CreateSessio
 import { MaterialCard } from '../components/features/materials/MaterialCard';
 import { UploadMaterialModal } from '../components/features/materials/UploadMaterialModal';
 import { MemberList } from '../components/features/groups/MemberList';
+import { GroupChat } from '../components/features/groups/GroupChat';
 import type { Group, Member } from '../types';
 
 const TABS = [
+  { key: 'chat', label: 'Chat Grup' },
   { key: 'sessions', label: 'Sesi Diskusi' },
   { key: 'materials', label: 'Materi Belajar' },
   { key: 'members', label: 'Anggota Grup' },
@@ -34,7 +36,7 @@ export function GroupDetailPage() {
   const [members, setMembers] = useState<Member[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [activeTab, setActiveTab] = useState('sessions');
+  const [activeTab, setActiveTab] = useState('chat');
 
   // Edit mode
   const [isEditing, setIsEditing] = useState(false);
@@ -311,6 +313,11 @@ export function GroupDetailPage() {
               </div>
             )}
           </div>
+        )}
+
+        {/* Chat Tab */}
+        {activeTab === 'chat' && groupId && (
+          <GroupChat groupId={groupId} />
         )}
 
         {/* Materials Tab */}

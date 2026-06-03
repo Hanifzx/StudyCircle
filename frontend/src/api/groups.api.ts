@@ -46,4 +46,9 @@ export const groupsApi = {
     const response = await axiosInstance.delete(`/groups/${groupId}/members/${userId}`);
     return response.data;
   },
+
+  getGroupChats: async (groupId: string) => {
+    const response = await axiosInstance.get(`/groups/${groupId}/chats`);
+    return response.data;
+  },
 };

@@ -107,12 +107,28 @@ export class GroupsController {
 
   async getMembers(req: Request, res: Response, next: NextFunction) {
     try {
+      const userId = req.user!.userId;
       const groupId = req.params.groupId as string;
-      const members = await groupsService.getMembers(groupId);
+      const members = await groupsService.getMembers(groupId, userId);
       res.status(200).json({ success: true, data: members });
     } catch (error) {
-      if (error instanceof Error && error.message === 'Group not found') {
-        res.status(404).json({ success: false, message: error.message });
+      if (error instanceof Error && (error.message === 'Group not found' || error.message.includes('Forbidden'))) {
+        res.status(error.message.includes('Forbidden') ? 403 : 404).json({ success: false, message: error.message });
+        return;
+      }
+      next(error);
+    }
+  }
+
+  async getChats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user!.userId;
+      const groupId = req.params.groupId as string;
+      const chats = await groupsService.getGroupChats(userId, groupId);
+      res.status(200).json({ success: true, data: chats });
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Forbidden')) {
+        res.status(403).json({ success: false, message: error.message });
         return;
       }
       next(error);

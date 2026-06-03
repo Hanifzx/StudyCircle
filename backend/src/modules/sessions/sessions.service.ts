@@ -43,7 +43,20 @@ export class SessionsService {
       creator: { connect: { id: userId } }
     };
 
-    return this.repository.createSession(sessionData);
+    const session = await this.repository.createSession(sessionData);
+
+    // Gamification: +5 points for creating a session
+    const gamification = new (require('../gamification/gamification.service').GamificationService)();
+    await gamification.awardPoints(userId, 5);
+
+    // Notify group via Socket.io
+    const socketService = require('../../socket').socketService;
+    socketService.notifyGroup(groupId, 'notification', {
+      type: 'SESSION_CREATED',
+      message: `Sesi diskusi baru: ${session.title} dijadwalkan!`,
+    });
+
+    return session;
   }
 
   async getGroupSessions(userId: string, groupId: string) {

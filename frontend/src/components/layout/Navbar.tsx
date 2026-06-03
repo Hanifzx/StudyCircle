@@ -26,9 +26,14 @@ export const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
       {/* Right section */}
       <div className="flex items-center gap-4">
         {user && (
-          <span className="text-sm text-gray-200 hidden sm:block">
-            {user.fullName}
-          </span>
+          <div className="flex items-center gap-2 hidden sm:flex">
+            <span className="text-sm text-gray-200">
+              {user.fullName}
+            </span>
+            <span className="px-2 py-0.5 rounded-full bg-primary-500/20 text-primary-300 text-xs font-bold border border-primary-500/30">
+              Lv. {user.level || 1}
+            </span>
+          </div>
         )}
         <button
           onClick={logout}

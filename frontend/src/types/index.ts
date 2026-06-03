@@ -10,6 +10,8 @@ export interface User {
   semester?: number;
   bio?: string;
   role: 'USER' | 'ADMIN';
+  level: number;
+  points: number;
   learningStyle?: LearningStyle;
 }
 
@@ -21,6 +23,8 @@ export interface UserProfile {
   semester: number | null;
   bio?: string;
   role: 'USER' | 'ADMIN';
+  level: number;
+  points: number;
   learningStyle?: {
     primaryStyle: string;
   };

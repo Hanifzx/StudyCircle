@@ -30,6 +30,9 @@ router.post('/:groupId/leave', validate(groupIdParamSchema), groupsController.le
 router.get('/:groupId/members', validate(groupIdParamSchema), groupsController.getMembers);
 router.delete('/:groupId/members/:userId', validate(removeMemberSchema), groupsController.removeMember);
 
+// Chats
+router.get('/:groupId/chats', validate(groupIdParamSchema), groupsController.getChats);
+
 // Sessions
 router.use('/:groupId/sessions', groupSessionsRouter);
 

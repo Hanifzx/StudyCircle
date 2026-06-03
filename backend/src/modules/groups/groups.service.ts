@@ -81,11 +81,24 @@ export class GroupsService {
     return this.repository.removeMember(groupId, userId);
   }
 
-  async getMembers(groupId: string) {
-    const group = await this.repository.findGroupById(groupId);
-    if (!group) throw new Error('Group not found');
+  async getMembers(groupId: string, userId: string) {
+    // Ensure user is member
+    const isMember = await this.repository.findMember(groupId, userId);
+    if (!isMember) {
+      throw new Error('Forbidden: You are not a member of this group');
+    }
 
     return this.repository.findGroupMembers(groupId);
+  }
+
+  async getGroupChats(userId: string, groupId: string) {
+    // Ensure user is member
+    const isMember = await this.repository.findMember(groupId, userId);
+    if (!isMember) {
+      throw new Error('Forbidden: You are not a member of this group');
+    }
+
+    return this.repository.findGroupChats(groupId);
   }
 
   async removeMember(adminId: string, groupId: string, targetUserId: string) {

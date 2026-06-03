@@ -116,4 +116,23 @@ export class GroupsRepository {
       }
     });
   }
+
+  async findGroupChats(studyGroupId: string) {
+    return prisma.chatMessage.findMany({
+      where: { studyGroupId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            role: true,
+            level: true,
+          }
+        }
+      },
+      orderBy: { createdAt: 'asc' },
+      // Optional: limit to last 50 messages for simplicity
+      take: 50,
+    });
+  }
 }
