@@ -3,7 +3,8 @@ import { Modal } from '../../common/Modal';
 import { FormInput } from '../../common/FormInput';
 import { Button } from '../../common/Button';
 import { groupsApi } from '../../../api/groups.api';
-import { subjectsApi, Subject } from '../../../api/subjects.api';
+import { subjectsApi } from '../../../api/subjects.api';
+import type { Subject } from '../../../types';
 
 interface CreateGroupModalProps {
   isOpen: boolean;

@@ -9,8 +9,12 @@ import { ProgressPage } from '../pages/ProgressPage';
 import { ProfilePage } from '../pages/ProfilePage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { AppLayout } from '../components/layout/AppLayout';
-
 import { GuestRoute } from './GuestRoute';
+import { AdminRoute } from './AdminRoute';
+import { AdminLayout } from '../components/layout/AdminLayout';
+import { AdminDashboardPage } from '../pages/admin/AdminDashboardPage';
+import { AdminUsersPage } from '../pages/admin/AdminUsersPage';
+import { AdminGroupsPage } from '../pages/admin/AdminGroupsPage';
 
 // ---------------------------------------------------------------------------
 // Landing placeholder (kept inline — no dedicated page needed)
@@ -58,10 +62,19 @@ export function AppRouter() {
             <Route path="/progress" element={<ProgressPage />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
+
+          {/* Admin Routes */}
+          <Route path="/admin" element={<AdminRoute />}>
+            <Route element={<AdminLayout />}>
+              <Route path="dashboard" element={<AdminDashboardPage />} />
+              <Route path="users" element={<AdminUsersPage />} />
+              <Route path="groups" element={<AdminGroupsPage />} />
+            </Route>
+          </Route>
         </Route>
 
         {/* Catch-all redirect */}
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </BrowserRouter>
   );

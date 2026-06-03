@@ -41,6 +41,7 @@ import { sessionsRouter } from './modules/sessions/sessions.routes';
 import { materialsRouter } from './modules/materials/materials.routes';
 import { progressRouter } from './modules/progress/progress.routes';
 import subjectsRoutes from './modules/subjects/subjects.routes';
+import adminRoutes from './modules/admin/admin.routes';
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);
@@ -50,6 +51,7 @@ app.use('/api/v1/sessions', sessionsRouter);
 app.use('/api/v1/materials', materialsRouter);
 app.use('/api/v1/progress', progressRouter);
 app.use('/api/v1/subjects', subjectsRoutes);
+app.use('/api/v1/admin', adminRoutes);
 
 // Global Error Handler
 app.use(errorHandler);
