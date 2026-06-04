@@ -7,6 +7,7 @@ import { GroupDetailPage } from '../pages/GroupDetailPage';
 import { SessionDetailPage } from '../pages/SessionDetailPage';
 import { ProgressPage } from '../pages/ProgressPage';
 import { ProfilePage } from '../pages/ProfilePage';
+import { LeaderboardPage } from '../pages/LeaderboardPage';
 import { ProtectedRoute } from './ProtectedRoute';
 import { AppLayout } from '../components/layout/AppLayout';
 import { SharedLayout } from '../components/layout/SharedLayout';
@@ -57,6 +58,7 @@ export function AppRouter() {
         <Route element={<SharedLayout />}>
           <Route path="/groups" element={<GroupsPage />} />
           <Route path="/groups/:groupId" element={<GroupDetailPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
         </Route>
 
         {/* Protected routes wrapped in AppLayout */}

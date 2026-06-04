@@ -21,6 +21,7 @@ import { UploadMaterialModal } from '../components/features/materials/UploadMate
 import { MemberList } from '../components/features/groups/MemberList';
 import { GroupChat } from '../components/features/groups/GroupChat';
 import { useQueryClient } from '@tanstack/react-query';
+import { socketService } from '../utils/socket';
 
 const TABS = [
   { key: 'chat', label: 'Chat Grup' },
@@ -84,6 +85,24 @@ export function GroupDetailPage() {
       setEditDesc(group.description ?? '');
     }
   }, [group]);
+
+  // Handle Real-Time Notifications
+  useEffect(() => {
+    if (!groupId) return;
+
+    socketService.connect();
+    socketService.joinGroup(groupId);
+
+    // Listen to generic notifications from socket
+    socketService.getSocket()?.on('material_uploaded', (data: any) => {
+      // Refresh materials query
+      queryClient.invalidateQueries({ queryKey: ['materials', 'infinite', groupId] });
+    });
+
+    return () => {
+      socketService.getSocket()?.off('material_uploaded');
+    };
+  }, [groupId, queryClient]);
 
   const isAdmin = useMemo(() => {
     return members.some((m: any) => m.userId === user?.id && m.role === 'admin');

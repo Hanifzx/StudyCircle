@@ -30,3 +30,10 @@ export function useUpdateLearningStyleMutation() {
     },
   });
 }
+
+export function useLeaderboardQuery(limit = 10) {
+  return useQuery({
+    queryKey: ['leaderboard', limit],
+    queryFn: () => usersApi.getLeaderboard(limit).then((res) => res.data),
+  });
+}

@@ -139,7 +139,7 @@ export function ProfilePage() {
                   <p className="text-sm text-gray-400 mt-1">{profile.bio}</p>
                 )}
 
-                <div className="flex items-center gap-3 mt-4">
+                <div className="flex flex-wrap items-center gap-3 mt-4">
                   <div className="px-3 py-1.5 rounded-lg bg-primary-500/10 border border-primary-500/20">
                     <span className="text-xs text-primary-300 font-semibold block">Level</span>
                     <span className="text-lg font-bold text-primary-400">{profile?.level || 1}</span>
@@ -147,6 +147,14 @@ export function ProfilePage() {
                   <div className="px-3 py-1.5 rounded-lg bg-secondary-500/10 border border-secondary-500/20">
                     <span className="text-xs text-secondary-300 font-semibold block">Points</span>
                     <span className="text-lg font-bold text-secondary-400">{profile?.points || 0}</span>
+                  </div>
+                  
+                  {/* Gamification Badge */}
+                  <div className="px-3 py-1.5 rounded-lg bg-amber-500/10 border border-amber-500/20 flex flex-col items-center justify-center">
+                    <span className="text-xs text-amber-300 font-semibold block">Badge</span>
+                    <span className="text-sm font-bold text-amber-400 flex items-center gap-1 mt-1">
+                      {profile?.level < 5 ? 'Pemula' : profile?.level < 10 ? 'Pelajar Aktif' : profile?.level < 20 ? 'Sarjana' : 'Master'}
+                    </span>
                   </div>
                 </div>
 

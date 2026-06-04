@@ -20,3 +20,7 @@ export async function updateLearningStyle(userId: string, primaryStyle: string, 
   await usersRepo.upsertLearningStyle(userId, primaryStyle, secondaryStyle);
   return getProfile(userId);
 }
+
+export async function getLeaderboard(limit?: number) {
+  return usersRepo.getLeaderboard(limit);
+}

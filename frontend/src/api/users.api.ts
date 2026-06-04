@@ -15,4 +15,9 @@ export const usersApi = {
     const response = await axiosInstance.put('/users/learning-style', data);
     return response.data;
   },
+
+  getLeaderboard: async (limit: number = 10) => {
+    const response = await axiosInstance.get(`/users/leaderboard?limit=${limit}`);
+    return response.data;
+  },
 };

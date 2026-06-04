@@ -8,6 +8,7 @@ import {
   HelpCircle,
   X,
   Plus,
+  Trophy,
 } from 'lucide-react';
 import { Button } from '../common/Button';
 import { CreateGroupModal } from '../features/groups/CreateGroupModal';
@@ -21,6 +22,7 @@ const navItems = [
   { to: '/dashboard', label: 'Beranda', icon: LayoutDashboard, end: true },
   { to: '/progress', label: 'Grup Saya', icon: Users, end: false }, // mapping Progress to Grup Saya for now, wait we should map to actual paths
   { to: '/groups', label: 'Cari Grup', icon: Search, end: false },
+  { to: '/leaderboard', label: 'Klasemen', icon: Trophy, end: false },
   { to: '/profile', label: 'Pengaturan', icon: Settings, end: false },
 ];
 

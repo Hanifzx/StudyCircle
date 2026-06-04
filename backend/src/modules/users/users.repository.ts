@@ -23,3 +23,19 @@ export async function upsertLearningStyle(userId: string, primaryStyle: string, 
     create: { userId, primaryStyle, secondaryStyle },
   });
 }
+
+export async function getLeaderboard(limit = 10) {
+  return prisma.user.findMany({
+    take: limit,
+    orderBy: {
+      points: 'desc',
+    },
+    select: {
+      id: true,
+      username: true,
+      fullName: true,
+      level: true,
+      points: true,
+    }
+  });
+}
