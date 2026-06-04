@@ -21,6 +21,7 @@ export function ProfilePage() {
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [editBio, setEditBio] = useState('');
+  const [editTimezone, setEditTimezone] = useState('');
   const [error, setError] = useState<string | null>(null);
 
   // Sync edit state values when profile query loads
@@ -28,13 +29,14 @@ export function ProfilePage() {
     if (profile) {
       setEditName(profile.fullName);
       setEditBio(profile.bio ?? '');
+      setEditTimezone(profile.timezone ?? 'Asia/Jakarta');
     }
   }, [profile]);
 
   const handleSaveProfile = async () => {
     try {
       setError(null);
-      await updateProfileMutation.mutateAsync({ name: editName.trim(), bio: editBio.trim() });
+      await updateProfileMutation.mutateAsync({ name: editName.trim(), bio: editBio.trim(), timezone: editTimezone });
       setIsEditing(false);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to update profile');
@@ -105,6 +107,23 @@ export function ProfilePage() {
                     className="w-full px-3.5 py-2.5 rounded-lg bg-dark-card text-white placeholder-gray-500 border border-gray-700/50 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:outline-none transition-all duration-200 text-sm resize-none"
                   />
                 </div>
+                <div className="flex flex-col gap-1.5">
+                  <label htmlFor="timezone" className="text-sm font-medium text-gray-300">
+                    Timezone
+                  </label>
+                  <select
+                    id="timezone"
+                    name="timezone"
+                    value={editTimezone}
+                    onChange={(e) => setEditTimezone(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-lg bg-dark-card text-white border border-gray-700/50 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:outline-none transition-all duration-200 text-sm"
+                  >
+                    <option value="Asia/Jakarta">Asia/Jakarta (WIB)</option>
+                    <option value="Asia/Makassar">Asia/Makassar (WITA)</option>
+                    <option value="Asia/Jayapura">Asia/Jayapura (WIT)</option>
+                    <option value="UTC">UTC</option>
+                  </select>
+                </div>
                 <div className="flex gap-3">
                   <Button onClick={handleSaveProfile} loading={updateProfileMutation.isPending} disabled={!editName.trim()}>
                     Save
@@ -171,6 +190,14 @@ export function ProfilePage() {
                     <div className="flex items-center gap-2 text-sm text-gray-400">
                       <GraduationCap className="w-4 h-4 shrink-0" />
                       <span>Semester {profile.semester}</span>
+                    </div>
+                  )}
+                  {profile?.timezone && (
+                    <div className="flex items-center gap-2 text-sm text-gray-400">
+                      <svg className="w-4 h-4 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <span>Timezone: {profile.timezone}</span>
                     </div>
                   )}
                 </div>

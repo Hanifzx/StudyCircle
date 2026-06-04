@@ -1,7 +1,8 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, Clock, Users, XCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, Clock, Users, XCircle, Trash2, Video } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { JitsiMeeting } from '@jitsi/react-sdk';
 import {
   useSessionDetailsQuery,
   useJoinSessionMutation,
@@ -32,6 +33,7 @@ export function SessionDetailPage() {
   const [error, setError] = useState<string | null>(null);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showVideoCall, setShowVideoCall] = useState(false);
 
   // Queries
   const { data: session, isLoading, error: sessionError } = useSessionDetailsQuery(sessionId);
@@ -129,6 +131,40 @@ export function SessionDetailPage() {
         Back
       </button>
 
+      {/* Video Call */}
+      {showVideoCall && (
+        <Card className="overflow-hidden bg-[#0B0F19] h-[600px] border border-primary-500/30 shadow-[0_0_30px_rgba(203,166,247,0.15)] relative">
+          <button
+            onClick={() => setShowVideoCall(false)}
+            className="absolute top-4 right-4 z-50 bg-red-500 hover:bg-red-600 text-white p-2 rounded-full shadow-lg transition-colors"
+            aria-label="Tutup Video Call"
+          >
+            <XCircle className="w-5 h-5" />
+          </button>
+          <JitsiMeeting
+            domain="meet.jit.si"
+            roomName={`StudyCircle-Session-${sessionId}`}
+            configOverwrite={{
+              startWithAudioMuted: true,
+              disableModeratorIndicator: true,
+              startScreenSharing: true,
+              enableEmailInStats: false
+            }}
+            interfaceConfigOverwrite={{
+              DISABLE_JOIN_LEAVE_NOTIFICATIONS: true
+            }}
+            userInfo={{
+              displayName: user?.fullName || 'Student',
+              email: user?.email || ''
+            }}
+            getIFrameRef={(iframeRef) => {
+              iframeRef.style.height = '100%';
+              iframeRef.style.width = '100%';
+            }}
+          />
+        </Card>
+      )}
+
       {/* Session Info */}
       <Card className="p-6 space-y-5">
         <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
@@ -149,6 +185,12 @@ export function SessionDetailPage() {
             {canJoin && (
               <Button onClick={handleJoinSession} loading={joinSessionMutation.isPending}>
                 Join Session
+              </Button>
+            )}
+            {hasActiveAttendance && !showVideoCall && (
+              <Button variant="info" onClick={() => setShowVideoCall(true)}>
+                <Video className="w-4 h-4 mr-2" />
+                Join Virtual Room
               </Button>
             )}
             {hasActiveAttendance && (

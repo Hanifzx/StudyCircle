@@ -1,6 +1,14 @@
 import { useQuery, useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { groupsApi } from '../api/groups.api';
 import type { CreateGroupPayload } from '../types';
+import { matchApi } from '../api/match.api';
+
+export function useRecommendationsQuery(subjectId?: string) {
+  return useQuery({
+    queryKey: ['groups', 'recommendations', subjectId],
+    queryFn: () => matchApi.getRecommendations(subjectId),
+  });
+}
 
 export function useGroupsInfiniteQuery(filters?: { subjectId?: string; search?: string; limit?: number }) {
   const limit = filters?.limit ?? 12;

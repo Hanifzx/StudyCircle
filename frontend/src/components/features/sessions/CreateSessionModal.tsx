@@ -80,6 +80,35 @@ export function CreateSessionModal({ isOpen, onClose, groupId, onCreated }: Crea
           required
         />
 
+        <div className="flex justify-start">
+          <Button
+            type="button"
+            variant="info"
+            size="sm"
+            onClick={async () => {
+              try {
+                const { axiosInstance } = await import('../../../api/axiosInstance');
+                const res = await axiosInstance.get(`/sessions/groups/${groupId}/optimal-schedule`);
+                if (res.data?.data && res.data.data.length > 0) {
+                  const best = res.data.data[0];
+                  // format to YYYY-MM-DDTHH:mm
+                  const formatLocal = (d: string) => {
+                    const date = new Date(d);
+                    const pad = (n: number) => n.toString().padStart(2, '0');
+                    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+                  };
+                  setScheduledStartTime(formatLocal(best.scheduledStartTime));
+                  setScheduledEndTime(formatLocal(best.scheduledEndTime));
+                }
+              } catch (err) {
+                console.error("Failed to get optimal schedule", err);
+              }
+            }}
+          >
+            ✨ AI Suggest Optimal Time
+          </Button>
+        </div>
+
         <div className="flex justify-end gap-3 pt-2">
           <Button variant="ghost" onClick={onClose} disabled={createSessionMutation.isPending}>
             Cancel

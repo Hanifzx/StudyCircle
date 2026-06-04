@@ -41,6 +41,7 @@ model User {
   points       Int      @default(0)
   level        Int      @default(1)
   role         UserRole @default(USER)
+  timezone     String   @default("Asia/Jakarta")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 

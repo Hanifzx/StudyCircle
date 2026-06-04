@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Users } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { useGroupsInfiniteQuery, useJoinGroupMutation } from '../hooks/useGroupsQuery';
+import { useGroupsInfiniteQuery, useJoinGroupMutation, useRecommendationsQuery } from '../hooks/useGroupsQuery';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { EmptyState } from '../components/common/EmptyState';
 import { Button } from '../components/common/Button';
@@ -31,8 +31,11 @@ export function GroupsPage() {
 
   const joinMutation = useJoinGroupMutation();
 
+  const { data: recommendationsData, isLoading: isRecLoading } = useRecommendationsQuery();
+
   const tabs = [
     { key: 'all', label: 'Semua' },
+    { key: 'recommended', label: 'Rekomendasi ✨' },
     { key: 'my_groups', label: 'Grup Saya' },
     { key: 'available', label: 'Tersedia' },
   ];
@@ -51,6 +54,10 @@ export function GroupsPage() {
   };
 
   const filteredGroups = useMemo(() => {
+    if (activeTab === 'recommended') {
+      return recommendationsData?.data ?? [];
+    }
+
     let result = groups;
 
     switch (activeTab) {
@@ -65,7 +72,7 @@ export function GroupsPage() {
     }
 
     return result;
-  }, [groups, activeTab, user]);
+  }, [groups, activeTab, user, recommendationsData]);
 
   const handleJoin = async (groupId: string) => {
     try {

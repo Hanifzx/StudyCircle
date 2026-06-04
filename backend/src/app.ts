@@ -43,6 +43,7 @@ import { progressRouter } from './modules/progress/progress.routes';
 import subjectsRoutes from './modules/subjects/subjects.routes';
 import adminRoutes from './modules/admin/admin.routes';
 import { notificationsRouter } from './modules/notifications/notifications.routes';
+import matchRoutes from './modules/match/match.routes';
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);
@@ -54,6 +55,7 @@ app.use('/api/v1/progress', progressRouter);
 app.use('/api/v1/subjects', subjectsRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/notifications', notificationsRouter);
+app.use('/api/v1/match', matchRoutes);
 
 // Global Error Handler
 app.use(errorHandler);
