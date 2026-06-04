@@ -1,15 +1,21 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Users, XCircle, Trash2 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { sessionsApi } from '../api/sessions.api';
+import {
+  useSessionDetailsQuery,
+  useJoinSessionMutation,
+  useLeaveSessionMutation,
+  useUpdateSessionMutation,
+  useDeleteSessionMutation,
+} from '../hooks/useSessionsQuery';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 import { Card } from '../components/common/Card';
 import { ConfirmDialog } from '../components/common/ConfirmDialog';
 import { formatDateTime, formatTime } from '../utils/formatDate';
-import type { Session, SessionStatus } from '../types';
+import type { SessionStatus } from '../types';
 
 const statusConfig: Record<SessionStatus, { label: string; variant: 'info' | 'success' | 'default' | 'danger' }> = {
   scheduled: { label: 'Scheduled', variant: 'info' },
@@ -19,94 +25,64 @@ const statusConfig: Record<SessionStatus, { label: string; variant: 'info' | 'su
 };
 
 export function SessionDetailPage() {
-  const { sessionId } = useParams<{ sessionId: string }>();
+  const { sessionId } = useParams<{ sessionId: string }>() as { sessionId: string };
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  const [session, setSession] = useState<Session | null>(null);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [actionLoading, setActionLoading] = useState(false);
-
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const fetchSession = useCallback(async () => {
-    if (!sessionId) return;
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await sessionsApi.getSessionDetails(sessionId);
-      setSession(res.data);
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load session');
-    } finally {
-      setLoading(false);
-    }
-  }, [sessionId]);
+  // Queries
+  const { data: session, isLoading, error: sessionError } = useSessionDetailsQuery(sessionId);
 
-  useEffect(() => {
-    fetchSession();
-  }, [fetchSession]);
+  // Mutations
+  const joinSessionMutation = useJoinSessionMutation();
+  const leaveSessionMutation = useLeaveSessionMutation();
+  const updateSessionMutation = useUpdateSessionMutation();
+  const deleteSessionMutation = useDeleteSessionMutation();
 
-  if (loading) {
-    return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
-  }
+  const statusCfg = useMemo(() => {
+    if (!session) return statusConfig.scheduled;
+    return statusConfig[session.status as SessionStatus] ?? statusConfig.scheduled;
+  }, [session]);
 
-  if (error && !session) {
-    return (
-      <div className="text-center py-16">
-        <p role="alert" className="text-red-400 mb-4">{error}</p>
-        <Button onClick={() => navigate(-1)}>Go Back</Button>
-      </div>
-    );
-  }
-
-  if (!session) return null;
-
-  const statusCfg = statusConfig[session.status] ?? statusConfig.scheduled;
-  const isCreator = session.createdBy === user?.id;
+  const isCreator = useMemo(() => session?.createdBy === user?.id, [session, user]);
   const now = new Date();
-  const hasEnded = new Date(session.scheduledEndTime) < now;
-  const isCancelled = session.status === 'cancelled';
+  const hasEnded = useMemo(() => session ? new Date(session.scheduledEndTime) < now : false, [session, now]);
+  const isCancelled = useMemo(() => session?.status === 'cancelled', [session]);
 
-  const userAttendance = session.attendances?.find(
-    (a) => a.userId === user?.id && a.status === 'active'
-  );
+  const userAttendance = useMemo(() => {
+    return session?.attendances?.find(
+      (a: any) => a.userId === user?.id && a.status === 'active'
+    );
+  }, [session, user]);
+
   const hasActiveAttendance = !!userAttendance;
   const canJoin = !hasActiveAttendance && !hasEnded && !isCancelled;
 
   const handleJoinSession = async () => {
-    if (!sessionId) return;
     try {
-      setActionLoading(true);
-      await sessionsApi.joinSession(sessionId);
-      await fetchSession();
+      setError(null);
+      await joinSessionMutation.mutateAsync(sessionId);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to join session');
-    } finally {
-      setActionLoading(false);
     }
   };
 
   const handleLeaveSession = async () => {
-    if (!sessionId) return;
     try {
-      setActionLoading(true);
-      await sessionsApi.leaveSession(sessionId);
-      await fetchSession();
+      setError(null);
+      await leaveSessionMutation.mutateAsync(sessionId);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to leave session');
-    } finally {
-      setActionLoading(false);
     }
   };
 
   const handleCancelSession = async () => {
-    if (!sessionId) return;
     try {
-      await sessionsApi.updateSession(sessionId, { status: 'cancelled' });
-      await fetchSession();
+      setError(null);
+      await updateSessionMutation.mutateAsync({ sessionId, payload: { status: 'cancelled' } });
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to cancel session');
     } finally {
@@ -115,9 +91,9 @@ export function SessionDetailPage() {
   };
 
   const handleDeleteSession = async () => {
-    if (!sessionId) return;
     try {
-      await sessionsApi.deleteSession(sessionId);
+      setError(null);
+      await deleteSessionMutation.mutateAsync(sessionId);
       navigate(-1);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to delete session');
@@ -126,8 +102,23 @@ export function SessionDetailPage() {
     }
   };
 
+  if (isLoading) {
+    return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
+  }
+
+  if ((sessionError || error) && !session) {
+    return (
+      <div className="text-center py-16">
+        <p role="alert" className="text-red-400 mb-4">Gagal memuat sesi belajar.</p>
+        <Button onClick={() => navigate(-1)}>Go Back</Button>
+      </div>
+    );
+  }
+
+  if (!session) return null;
+
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-3xl mx-auto space-y-6 animate-fade-in-up">
       {/* Back button */}
       <button
         onClick={() => navigate(-1)}
@@ -156,12 +147,12 @@ export function SessionDetailPage() {
           {/* Actions */}
           <div className="flex flex-wrap gap-2 shrink-0">
             {canJoin && (
-              <Button onClick={handleJoinSession} loading={actionLoading}>
+              <Button onClick={handleJoinSession} loading={joinSessionMutation.isPending}>
                 Join Session
               </Button>
             )}
             {hasActiveAttendance && (
-              <Button variant="secondary" onClick={handleLeaveSession} loading={actionLoading}>
+              <Button variant="secondary" onClick={handleLeaveSession} loading={leaveSessionMutation.isPending}>
                 Leave Session
               </Button>
             )}
@@ -204,7 +195,6 @@ export function SessionDetailPage() {
         )}
       </Card>
 
-      {/* Error */}
       {error && (
         <p role="alert" className="text-sm text-red-400 bg-red-500/10 px-4 py-3 rounded-lg">{error}</p>
       )}
@@ -240,7 +230,7 @@ export function SessionDetailPage() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-700/30">
-                {session.attendances.map((att) => (
+                {session.attendances.map((att: any) => (
                   <tr key={att.id} className="hover:bg-white/5 transition-colors">
                     <td className="py-2.5 px-4 text-white font-medium">
                       {att.user?.fullName ?? 'Unknown'}

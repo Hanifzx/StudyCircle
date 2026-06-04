@@ -1,8 +1,8 @@
 import { axiosInstance } from './axiosInstance';
 
 export const materialsApi = {
-  getGroupMaterials: async (groupId: string) => {
-    const response = await axiosInstance.get(`/groups/${groupId}/materials`);
+  getGroupMaterials: async (groupId: string, params?: { page?: number; limit?: number }) => {
+    const response = await axiosInstance.get(`/groups/${groupId}/materials`, { params });
     return response.data;
   },
 

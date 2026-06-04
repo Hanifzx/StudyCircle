@@ -16,12 +16,18 @@ export class GroupsController {
 
   async getGroups(req: Request, res: Response, next: NextFunction) {
     try {
-      const { subjectId, search } = req.query;
-      const groups = await groupsService.getAllGroups({
+      const { subjectId, search, page, limit } = req.query;
+      const result = await groupsService.getAllGroups({
         subjectId: subjectId as string,
-        search: search as string
+        search: search as string,
+        page: page ? parseInt(page as string) : undefined,
+        limit: limit ? parseInt(limit as string) : undefined
       });
-      res.status(200).json({ success: true, data: groups });
+      res.status(200).json({ 
+        success: true, 
+        data: result.groups, 
+        pagination: result.pagination 
+      });
     } catch (error) {
       next(error);
     }

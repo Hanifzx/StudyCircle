@@ -1,101 +1,76 @@
 import { useState, useEffect } from 'react';
 import { User, Mail, GraduationCap, Pencil } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { usersApi } from '../api/users.api';
+import { useProfileQuery, useUpdateProfileMutation, useUpdateLearningStyleMutation } from '../hooks/useProfileQuery';
 import { Card } from '../components/common/Card';
 import { FormInput } from '../components/common/FormInput';
 import { Button } from '../components/common/Button';
 import { Badge } from '../components/common/Badge';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
-import type { UserProfile } from '../types';
 
 const LEARNING_STYLES = ['Visual', 'Auditory', 'Reading/Writing', 'Kinesthetic'];
 
 export function ProfilePage() {
   const { user } = useAuth();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  // Edit mode
+  const { data: profile, isLoading, error: profileError } = useProfileQuery();
+  const updateProfileMutation = useUpdateProfileMutation();
+  const updateLearningStyleMutation = useUpdateLearningStyleMutation();
+
+  // Edit mode states
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [editBio, setEditBio] = useState('');
-  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  // Learning style
-  const [selectedStyle, setSelectedStyle] = useState('');
-  const [savingStyle, setSavingStyle] = useState(false);
-
+  // Sync edit state values when profile query loads
   useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const loadProfile = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const res = await usersApi.getProfile();
-      const data = res.data as UserProfile;
-      setProfile(data);
-      setEditName(data.fullName);
-      setEditBio(data.bio ?? '');
-      setSelectedStyle(data.learningStyle?.primaryStyle ?? '');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Failed to load profile');
-    } finally {
-      setLoading(false);
+    if (profile) {
+      setEditName(profile.fullName);
+      setEditBio(profile.bio ?? '');
     }
-  };
+  }, [profile]);
 
   const handleSaveProfile = async () => {
     try {
-      setSaving(true);
-      await usersApi.updateProfile({ name: editName.trim(), bio: editBio.trim() });
-      await loadProfile();
+      setError(null);
+      await updateProfileMutation.mutateAsync({ name: editName.trim(), bio: editBio.trim() });
       setIsEditing(false);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to update profile');
-    } finally {
-      setSaving(false);
     }
   };
 
   const handleUpdateLearningStyle = async (style: string) => {
     try {
-      setSavingStyle(true);
-      setSelectedStyle(style);
-      await usersApi.updateLearningStyle({ learningStyle: style });
-      await loadProfile();
+      setError(null);
+      await updateLearningStyleMutation.mutateAsync({ learningStyle: style });
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to update learning style');
-    } finally {
-      setSavingStyle(false);
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
   }
 
-  if (error && !profile) {
+  if (profileError && !profile) {
     return (
       <div className="text-center py-16">
-        <p className="text-red-400 mb-4">{error}</p>
-        <Button onClick={loadProfile}>Retry</Button>
+        <p className="text-red-400 mb-4">Gagal memuat profil</p>
       </div>
     );
   }
 
   const initials = (profile?.fullName ?? user?.fullName ?? '??')
     .split(' ')
-    .map((n) => n[0])
+    .map((n: string) => n[0])
     .join('')
     .toUpperCase()
     .slice(0, 2);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6">
+    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in-up">
       <h1 className="text-2xl font-bold text-white">Profile</h1>
 
       {/* Avatar & Info Card */}
@@ -131,11 +106,12 @@ export function ProfilePage() {
                   />
                 </div>
                 <div className="flex gap-3">
-                  <Button onClick={handleSaveProfile} loading={saving} disabled={!editName.trim()}>
+                  <Button onClick={handleSaveProfile} loading={updateProfileMutation.isPending} disabled={!editName.trim()}>
                     Save
                   </Button>
                   <Button
                     variant="ghost"
+                    disabled={updateProfileMutation.isPending}
                     onClick={() => {
                       setIsEditing(false);
                       setEditName(profile?.fullName ?? '');
@@ -201,10 +177,10 @@ export function ProfilePage() {
             <Button
               key={style}
               size="sm"
-              variant={selectedStyle === style ? 'primary' : 'secondary'}
-              loading={savingStyle && selectedStyle === style}
+              variant={profile?.learningStyle?.primaryStyle === style ? 'primary' : 'secondary'}
+              loading={updateLearningStyleMutation.isPending && updateLearningStyleMutation.variables?.learningStyle === style}
               onClick={() => handleUpdateLearningStyle(style)}
-              aria-pressed={selectedStyle === style}
+              aria-pressed={profile?.learningStyle?.primaryStyle === style}
             >
               {style}
             </Button>
@@ -212,8 +188,10 @@ export function ProfilePage() {
         </div>
       </Card>
 
-      {error && (
-        <p className="text-sm text-red-400 bg-red-500/10 px-4 py-3 rounded-lg">{error}</p>
+      {(error || profileError) && (
+        <p role="alert" className="text-sm text-red-400 bg-red-500/10 px-4 py-3 rounded-lg">
+          {error || (profileError as any)?.response?.data?.error || 'Gagal memproses data'}
+        </p>
       )}
     </div>
   );

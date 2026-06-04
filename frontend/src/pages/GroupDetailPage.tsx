@@ -1,10 +1,12 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pencil, Trash2, LogOut, Users, BookOpen, Calendar, Plus } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { useSessions } from '../hooks/useSessions';
-import { useMaterials } from '../hooks/useMaterials';
+import { useGroupDetailQuery, useGroupMembersQuery, useLeaveGroupMutation, useRemoveMemberMutation } from '../hooks/useGroupsQuery';
+import { useGroupSessionsQuery } from '../hooks/useSessionsQuery';
+import { useMaterialsInfiniteQuery, useDeleteMaterialMutation } from '../hooks/useMaterialsQuery';
 import { groupsApi } from '../api/groups.api';
+import { materialsApi } from '../api/materials.api';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { Button } from '../components/common/Button';
 import { Card } from '../components/common/Card';
@@ -18,7 +20,7 @@ import { MaterialCard } from '../components/features/materials/MaterialCard';
 import { UploadMaterialModal } from '../components/features/materials/UploadMaterialModal';
 import { MemberList } from '../components/features/groups/MemberList';
 import { GroupChat } from '../components/features/groups/GroupChat';
-import type { Group, Member } from '../types';
+import { useQueryClient } from '@tanstack/react-query';
 
 const TABS = [
   { key: 'chat', label: 'Chat Grup' },
@@ -28,21 +30,19 @@ const TABS = [
 ];
 
 export function GroupDetailPage() {
-  const { groupId } = useParams<{ groupId: string }>();
+  const { groupId } = useParams<{ groupId: string }>() as { groupId: string };
   const navigate = useNavigate();
   const { user } = useAuth();
+  const queryClient = useQueryClient();
 
-  const [group, setGroup] = useState<Group | null>(null);
-  const [members, setMembers] = useState<Member[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState('chat');
 
-  // Edit mode
+  // Edit mode states
   const [isEditing, setIsEditing] = useState(false);
   const [editName, setEditName] = useState('');
   const [editDesc, setEditDesc] = useState('');
   const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Dialogs
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -50,65 +50,58 @@ export function GroupDetailPage() {
   const [showUploadMaterial, setShowUploadMaterial] = useState(false);
   const [materialToDelete, setMaterialToDelete] = useState<string | null>(null);
 
-  // Hooks
+  // React Query Queries
+  const { data: groupDetail, isLoading: detailLoading } = useGroupDetailQuery(groupId);
+  const { data: membersDetail, isLoading: membersLoading } = useGroupMembersQuery(groupId);
+  const { data: sessionsDetail, isLoading: sessionsLoading } = useGroupSessionsQuery(groupId);
+  
+  // Materials Query with Pagination
   const {
-    sessions,
-    loading: sessionsLoading,
-    fetchGroupSessions,
-  } = useSessions();
+    data: materialsData,
+    isLoading: materialsLoading,
+    fetchNextPage: fetchNextMaterialsPage,
+    hasNextPage: hasNextMaterialsPage,
+    isFetchingNextPage: isFetchingNextMaterialsPage,
+  } = useMaterialsInfiniteQuery(groupId, 10);
 
-  const {
-    materials,
-    loading: materialsLoading,
-    fetchGroupMaterials,
-    downloadMaterial,
-    deleteMaterial,
-  } = useMaterials();
+  // Mutations
+  const leaveGroupMutation = useLeaveGroupMutation();
+  const removeMemberMutation = useRemoveMemberMutation();
+  const deleteMaterialMutation = useDeleteMaterialMutation();
 
-  const isAdmin = members.some(
-    (m) => m.userId === user?.id && m.role === 'admin'
-  );
-  const isMember = members.some((m) => m.userId === user?.id);
+  const group = groupDetail?.data;
+  const members = membersDetail?.data || [];
+  const sessions = sessionsDetail?.data || [];
 
-  const fetchGroup = useCallback(async () => {
-    if (!groupId) return;
-    try {
-      setLoading(true);
-      setError(null);
-      const [groupRes, membersRes] = await Promise.all([
-        groupsApi.getGroupById(groupId),
-        groupsApi.getMembers(groupId),
-      ]);
-      setGroup(groupRes.data);
-      setMembers(membersRes.data || []);
-      setEditName(groupRes.data.name);
-      setEditDesc(groupRes.data.description ?? '');
-    } catch (err: any) {
-      setError(err.response?.data?.error || 'Gagal memuat grup');
-    } finally {
-      setLoading(false);
+  const materials = useMemo(() => {
+    return materialsData?.pages.flatMap((page) => page.data) ?? [];
+  }, [materialsData]);
+
+  // Set form fields once data loads
+  useEffect(() => {
+    if (group) {
+      setEditName(group.name);
+      setEditDesc(group.description ?? '');
     }
-  }, [groupId]);
+  }, [group]);
 
-  useEffect(() => {
-    fetchGroup();
-  }, [fetchGroup]);
+  const isAdmin = useMemo(() => {
+    return members.some((m: any) => m.userId === user?.id && m.role === 'admin');
+  }, [members, user]);
 
-  useEffect(() => {
-    if (!groupId) return;
-    if (activeTab === 'sessions') fetchGroupSessions(groupId);
-    if (activeTab === 'materials') fetchGroupMaterials(groupId);
-  }, [groupId, activeTab]);
+  const isMember = useMemo(() => {
+    return members.some((m: any) => m.userId === user?.id);
+  }, [members, user]);
 
   const handleSaveEdit = async () => {
-    if (!groupId) return;
     try {
       setSaving(true);
+      setError(null);
       await groupsApi.updateGroup(groupId, {
         name: editName.trim(),
         description: editDesc.trim() || undefined,
       });
-      await fetchGroup();
+      queryClient.invalidateQueries({ queryKey: ['groups', 'detail', groupId] });
       setIsEditing(false);
     } catch (err: any) {
       setError(err.response?.data?.error || 'Gagal memperbarui grup');
@@ -118,9 +111,9 @@ export function GroupDetailPage() {
   };
 
   const handleDeleteGroup = async () => {
-    if (!groupId) return;
     try {
       await groupsApi.deleteGroup(groupId);
+      queryClient.invalidateQueries({ queryKey: ['groups'] });
       navigate('/groups', { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.error || 'Gagal menghapus grup');
@@ -130,9 +123,8 @@ export function GroupDetailPage() {
   };
 
   const handleLeaveGroup = async () => {
-    if (!groupId) return;
     try {
-      await groupsApi.leaveGroup(groupId);
+      await leaveGroupMutation.mutateAsync(groupId);
       navigate('/groups', { replace: true });
     } catch (err: any) {
       setError(err.response?.data?.error || 'Gagal keluar dari grup');
@@ -140,26 +132,48 @@ export function GroupDetailPage() {
   };
 
   const handleRemoveMember = async (userId: string) => {
-    if (!groupId) return;
     try {
-      await groupsApi.removeMember(groupId, userId);
-      setMembers((prev) => prev.filter((m) => m.userId !== userId));
+      await removeMemberMutation.mutateAsync({ groupId, userId });
     } catch (err: any) {
       setError(err.response?.data?.error || 'Gagal mengeluarkan anggota');
     }
   };
 
   const handleDeleteMaterial = async () => {
-    if (!groupId || !materialToDelete) return;
+    if (!materialToDelete) return;
     try {
-      await deleteMaterial(materialToDelete);
-      await fetchGroupMaterials(groupId);
+      await deleteMaterialMutation.mutateAsync({ groupId, materialId: materialToDelete });
     } catch (err: any) {
       setError(err.response?.data?.error || 'Gagal menghapus materi');
     } finally {
       setMaterialToDelete(null);
     }
   };
+
+  const downloadMaterial = async (materialId: string) => {
+    try {
+      const response = await materialsApi.downloadMaterial(materialId);
+      const blob = new Blob([response.data]);
+      const url = window.URL.createObjectURL(blob);
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'download';
+      if (contentDisposition) {
+        const match = contentDisposition.match(/filename="?(.+?)"?$/);
+        if (match) filename = match[1];
+      }
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+    } catch (err) {
+      console.error('Download error', err);
+    }
+  };
+
+  const loading = detailLoading || membersLoading;
 
   if (loading) {
     return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
@@ -303,7 +317,7 @@ export function GroupDetailPage() {
               />
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                {sessions.map((session) => (
+                {sessions.map((session: any) => (
                   <SessionCard
                     key={session.id}
                     session={session}
@@ -347,6 +361,20 @@ export function GroupDetailPage() {
                     onDelete={() => setMaterialToDelete(material.id)}
                   />
                 ))}
+
+                {/* Load More Materials */}
+                {hasNextMaterialsPage && (
+                  <div className="flex justify-center pt-4">
+                    <Button
+                      variant="secondary"
+                      onClick={() => fetchNextMaterialsPage()}
+                      disabled={isFetchingNextMaterialsPage}
+                      loading={isFetchingNextMaterialsPage}
+                    >
+                      Muat Lebih Banyak Materi
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -370,13 +398,11 @@ export function GroupDetailPage() {
             isOpen={showCreateSession}
             onClose={() => setShowCreateSession(false)}
             groupId={groupId}
-            onCreated={() => fetchGroupSessions(groupId)}
           />
           <UploadMaterialModal
             isOpen={showUploadMaterial}
             onClose={() => setShowUploadMaterial(false)}
             groupId={groupId}
-            onUploaded={() => fetchGroupMaterials(groupId)}
           />
         </>
       )}

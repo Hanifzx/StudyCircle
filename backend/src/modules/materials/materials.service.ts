@@ -49,10 +49,10 @@ export class MaterialsService {
     return material;
   }
 
-  async getGroupMaterials(userId: string, groupId: string) {
+  async getGroupMaterials(userId: string, groupId: string, page?: number, limit?: number) {
     // 5. Only group members can view materials
     await this.requireMember(groupId, userId);
-    return this.repository.findMaterialsByGroupId(groupId);
+    return this.repository.findMaterialsByGroupId(groupId, page, limit);
   }
 
   async deleteMaterial(userId: string, materialId: string) {

@@ -33,7 +33,7 @@ export class GroupsService {
     return group;
   }
 
-  async getAllGroups(filters?: { subjectId?: string; search?: string }) {
+  async getAllGroups(filters?: { subjectId?: string; search?: string; page?: number; limit?: number }) {
     return this.repository.findAllGroups(filters);
   }
 

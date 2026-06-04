@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Users } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { useGroups } from '../hooks/useGroups';
+import { useGroupsInfiniteQuery, useJoinGroupMutation } from '../hooks/useGroupsQuery';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { EmptyState } from '../components/common/EmptyState';
 import { Button } from '../components/common/Button';
@@ -14,13 +14,22 @@ import { CreateGroupModal } from '../components/features/groups/CreateGroupModal
 export function GroupsPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { groups, loading, joinGroup, refetch } = useGroups();
 
   const [searchQuery, setSearchQuery] = useState('');
   const [activeTab, setActiveTab] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [_joiningId, setJoiningId] = useState<string | null>(null);
   const [joinError, setJoinError] = useState<string | null>(null);
+
+  // React Query Infinite Scroll Query
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useGroupsInfiniteQuery({ search: searchQuery, limit: 12 });
+
+  const joinMutation = useJoinGroupMutation();
 
   const tabs = [
     { key: 'all', label: 'Semua' },
@@ -28,24 +37,21 @@ export function GroupsPage() {
     { key: 'available', label: 'Tersedia' },
   ];
 
-  const isMember = (group: typeof groups[0]) => {
+  // Flatten the paginated groups data
+  const groups = useMemo(() => {
+    return data?.pages.flatMap((page) => page.data) ?? [];
+  }, [data]);
+
+  const isMember = (group: any) => {
     if (!user) return false;
     return (
-      group.members?.some((m) => m.userId === user.id) ||
+      group.members?.some((m: any) => m.userId === user.id) ||
       group.createdBy === user.id
     );
   };
 
   const filteredGroups = useMemo(() => {
     let result = groups;
-
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(g => 
-        g.name.toLowerCase().includes(q) || 
-        g.description?.toLowerCase().includes(q)
-      );
-    }
 
     switch (activeTab) {
       case 'my_groups':
@@ -59,13 +65,12 @@ export function GroupsPage() {
     }
 
     return result;
-  }, [groups, activeTab, searchQuery, user]);
+  }, [groups, activeTab, user]);
 
   const handleJoin = async (groupId: string) => {
     try {
-      setJoiningId(groupId);
       setJoinError(null);
-      await joinGroup(groupId);
+      await joinMutation.mutateAsync(groupId);
     } catch (err: any) {
       const status = err.response?.status;
       if (status === 409) {
@@ -73,12 +78,10 @@ export function GroupsPage() {
       } else {
         setJoinError(err.response?.data?.error || 'Gagal bergabung dengan grup');
       }
-    } finally {
-      setJoiningId(null);
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
   }
 
@@ -149,16 +152,32 @@ export function GroupsPage() {
           }
         />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-          {filteredGroups.map((group) => (
-            <GroupCard
-              key={group.id}
-              group={group}
-              isMember={isMember(group)}
-              onJoin={() => handleJoin(group.id)}
-              onClick={() => navigate(`/groups/${group.id}`)}
-            />
-          ))}
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {filteredGroups.map((group) => (
+              <GroupCard
+                key={group.id}
+                group={group}
+                isMember={isMember(group)}
+                onJoin={() => handleJoin(group.id)}
+                onClick={() => navigate(`/groups/${group.id}`)}
+              />
+            ))}
+          </div>
+
+          {/* Load More Button */}
+          {hasNextPage && (
+            <div className="flex justify-center mt-6">
+              <Button
+                variant="secondary"
+                onClick={() => fetchNextPage()}
+                disabled={isFetchingNextPage}
+                loading={isFetchingNextPage}
+              >
+                Muat Lebih Banyak
+              </Button>
+            </div>
+          )}
         </div>
       )}
 
@@ -166,7 +185,6 @@ export function GroupsPage() {
       <CreateGroupModal
         isOpen={showCreateModal}
         onClose={() => setShowCreateModal(false)}
-        onCreated={refetch}
       />
     </div>
   );

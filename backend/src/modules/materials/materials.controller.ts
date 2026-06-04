@@ -44,9 +44,16 @@ export class MaterialsController {
     try {
       const groupId = req.params.groupId as string;
       const userId = req.user!.userId;
+      const { page, limit } = req.query;
 
-      const materials = await this.service.getGroupMaterials(userId, groupId);
-      const mappedMaterials = materials.map((m: any) => ({
+      const result = await this.service.getGroupMaterials(
+        userId, 
+        groupId,
+        page ? parseInt(page as string) : undefined,
+        limit ? parseInt(limit as string) : undefined
+      );
+
+      const mappedMaterials = result.materials.map((m: any) => ({
         id: m.id,
         title: m.title,
         description: m.description,
@@ -57,7 +64,12 @@ export class MaterialsController {
         uploaderName: m.uploader?.fullName || m.uploader?.username || 'Unknown',
         uploaderId: m.uploadedBy
       }));
-      res.status(200).json({ data: mappedMaterials });
+
+      res.status(200).json({ 
+        success: true, 
+        data: mappedMaterials, 
+        pagination: result.pagination 
+      });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }

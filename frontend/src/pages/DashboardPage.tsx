@@ -3,7 +3,7 @@ import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ArrowRight } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { useGroups } from '../hooks/useGroups';
+import { useGroupsInfiniteQuery, useJoinGroupMutation } from '../hooks/useGroupsQuery';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { EmptyState } from '../components/common/EmptyState';
 import { Button } from '../components/common/Button';
@@ -15,13 +15,16 @@ import { Badge } from '../components/common/Badge';
 export function DashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { groups, loading: groupsLoading, joinGroup } = useGroups();
-  
+
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [joinError, setJoinError] = useState<string | null>(null);
 
-  const isLoading = groupsLoading;
+  // Fetch groups using React Query
+  const { data, isLoading } = useGroupsInfiniteQuery({ search: searchQuery, limit: 6 });
+  const joinMutation = useJoinGroupMutation();
+
+  const groups = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
 
   const tabs = [
     { key: 'all', label: 'Semua' },
@@ -32,14 +35,6 @@ export function DashboardPage() {
 
   const filteredGroups = useMemo(() => {
     let result = groups;
-
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(g => 
-        g.name.toLowerCase().includes(q) || 
-        g.description?.toLowerCase().includes(q)
-      );
-    }
 
     switch (activeTab) {
       case 'available':
@@ -56,14 +51,14 @@ export function DashboardPage() {
     }
 
     return result;
-  }, [groups, activeTab, searchQuery]);
+  }, [groups, activeTab]);
 
   if (isLoading) {
     return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
   }
 
   // Identify "My Groups" based on membership
-  const myGroups = groups.filter(g => g.members?.some(m => m.userId === user?.id));
+  const myGroups = groups.filter(g => g.members?.some((m: any) => m.userId === user?.id));
   const upcomingSessionGroup = myGroups[0] || groups[0]; // mock upcoming session
 
   return (
@@ -158,7 +153,7 @@ export function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             {filteredGroups.map((group) => {
-              const isMember = group.members?.some(m => m.userId === user?.id);
+              const isMember = group.members?.some((m: any) => m.userId === user?.id);
               return (
                 <GroupCard
                   key={group.id}
@@ -167,7 +162,7 @@ export function DashboardPage() {
                   onJoin={async () => {
                     try {
                       setJoinError(null);
-                      await joinGroup(group.id);
+                      await joinMutation.mutateAsync(group.id);
                       navigate(`/groups/${group.id}`);
                     } catch (err: any) {
                       setJoinError(err.response?.data?.message || 'Gagal bergabung dengan grup');
