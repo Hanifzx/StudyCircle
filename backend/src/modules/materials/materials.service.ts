@@ -39,12 +39,17 @@ export class MaterialsService {
     const gamification = new (require('../gamification/gamification.service').GamificationService)();
     await gamification.awardPoints(userId, 10);
 
-    // Notify group via Socket.io
-    const socketService = require('../../socket').socketService;
-    socketService.notifyGroup(groupId, 'notification', {
-      type: 'MATERIAL_UPLOADED',
-      message: `Materi baru: ${material.title} telah diunggah!`,
-    });
+    // Notify group members via DB & Socket
+    const { NotificationsService } = require('../notifications/notifications.service');
+    const notificationsService = new NotificationsService();
+    await notificationsService.notifyGroupMembers(
+      groupId,
+      userId,
+      'Materi Baru',
+      `Materi baru "${material.title}" telah diunggah!`,
+      'MATERIAL_UPLOADED',
+      `/groups/${groupId}`
+    );
 
     return material;
   }

@@ -52,6 +52,7 @@ model User {
   createdGroups      StudyGroup[]        @relation("CreatedGroups")
   createdSessions    Session[]           @relation("CreatedSessions")
   chatMessages       ChatMessage[]
+  notifications      Notification[]
 
   @@map("users")
 }
@@ -214,4 +215,20 @@ model ChatMessage {
   @@index([studyGroupId])
   @@index([userId])
   @@map("chat_messages")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      String   // 'MATERIAL_UPLOADED', 'SESSION_CREATED', etc.
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("notifications")
 }

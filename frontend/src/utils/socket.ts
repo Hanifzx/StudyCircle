@@ -41,6 +41,10 @@ class SocketService {
     this.socket?.emit('leave_group', groupId);
   }
 
+  joinUser(userId: string) {
+    this.socket?.emit('join_user', userId);
+  }
+
   sendMessage(studyGroupId: string, userId: string, content: string) {
     this.socket?.emit('send_message', { studyGroupId, userId, content });
   }

@@ -27,6 +27,11 @@ class SocketService {
         logger.info(`Socket ${socket.id} left group_${groupId}`);
       });
 
+      socket.on('join_user', (userId: string) => {
+        socket.join(`user_${userId}`);
+        logger.info(`Socket ${socket.id} joined user_${userId}`);
+      });
+
       socket.on('send_message', async (data: { studyGroupId: string; userId: string; content: string }) => {
         try {
           const message = await prisma.chatMessage.create({
@@ -67,6 +72,13 @@ class SocketService {
   notifyGroup(groupId: string, event: string, data: any) {
     if (this.io) {
       this.io.to(`group_${groupId}`).emit(event, data);
+    }
+  }
+
+  // Helper for direct user notifications
+  sendToUser(userId: string, event: string, data: any) {
+    if (this.io) {
+      this.io.to(`user_${userId}`).emit(event, data);
     }
   }
 }

@@ -42,6 +42,7 @@ import { materialsRouter } from './modules/materials/materials.routes';
 import { progressRouter } from './modules/progress/progress.routes';
 import subjectsRoutes from './modules/subjects/subjects.routes';
 import adminRoutes from './modules/admin/admin.routes';
+import { notificationsRouter } from './modules/notifications/notifications.routes';
 
 // API Routes
 app.use('/api/v1/auth', authRoutes);
@@ -52,6 +53,7 @@ app.use('/api/v1/materials', materialsRouter);
 app.use('/api/v1/progress', progressRouter);
 app.use('/api/v1/subjects', subjectsRoutes);
 app.use('/api/v1/admin', adminRoutes);
+app.use('/api/v1/notifications', notificationsRouter);
 
 // Global Error Handler
 app.use(errorHandler);

@@ -3,19 +3,27 @@ import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Navbar } from './Navbar';
 import { socketService } from '../../utils/socket';
+import { useAuth } from '../../hooks/useAuth';
+import { useQueryClient } from '@tanstack/react-query';
 
 export const AppLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [notification, setNotification] = useState<{ message: string; visible: boolean } | null>(null);
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
 
   const handleMenuToggle = () => setSidebarOpen((prev) => !prev);
   const handleSidebarClose = () => setSidebarOpen(false);
 
   useEffect(() => {
-    socketService.connect();
+    if (user) {
+      socketService.connect();
+      socketService.joinUser(user.id);
+    }
     
     socketService.onNotification((data: any) => {
       setNotification({ message: data.message, visible: true });
+      queryClient.invalidateQueries({ queryKey: ['notifications'] });
       setTimeout(() => {
         setNotification((prev) => prev ? { ...prev, visible: false } : null);
       }, 5000);
@@ -24,7 +32,7 @@ export const AppLayout: React.FC = () => {
     return () => {
       socketService.offNotification();
     };
-  }, []);
+  }, [user, queryClient]);
 
   return (
     <div className="min-h-screen bg-transparent">

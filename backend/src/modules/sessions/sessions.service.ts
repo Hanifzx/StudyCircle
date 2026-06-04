@@ -49,12 +49,17 @@ export class SessionsService {
     const gamification = new (require('../gamification/gamification.service').GamificationService)();
     await gamification.awardPoints(userId, 5);
 
-    // Notify group via Socket.io
-    const socketService = require('../../socket').socketService;
-    socketService.notifyGroup(groupId, 'notification', {
-      type: 'SESSION_CREATED',
-      message: `Sesi diskusi baru: ${session.title} dijadwalkan!`,
-    });
+    // Notify group members via DB & Socket
+    const { NotificationsService } = require('../notifications/notifications.service');
+    const notificationsService = new NotificationsService();
+    await notificationsService.notifyGroupMembers(
+      groupId,
+      userId,
+      'Sesi Diskusi Baru',
+      `Sesi diskusi baru "${session.title}" dijadwalkan!`,
+      'SESSION_CREATED',
+      `/groups/${groupId}`
+    );
 
     return session;
   }
