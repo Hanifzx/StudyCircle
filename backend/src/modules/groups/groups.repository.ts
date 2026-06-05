@@ -27,7 +27,7 @@ export class GroupsRepository {
     });
   }
 
-  async findAllGroups(filters?: { subjectId?: string; search?: string }) {
+  async findAllGroups(filters?: { subjectId?: string; search?: string; page?: number; limit?: number }) {
     const where: Prisma.StudyGroupWhereInput = {};
     if (filters?.subjectId) {
       where.subjectId = filters.subjectId;
@@ -36,7 +36,45 @@ export class GroupsRepository {
       where.name = { contains: filters.search };
     }
 
-    return prisma.studyGroup.findMany({
+    const page = filters?.page;
+    const limit = filters?.limit;
+
+    if (page && limit) {
+      const skip = (page - 1) * limit;
+      const take = limit;
+
+      const [groups, total] = await prisma.$transaction([
+        prisma.studyGroup.findMany({
+          where,
+          include: {
+            subject: true,
+            members: {
+              select: { userId: true }
+            },
+            _count: {
+              select: { members: true }
+            }
+          },
+          orderBy: { createdAt: 'desc' },
+          skip,
+          take
+        }),
+        prisma.studyGroup.count({ where })
+      ]);
+
+      return {
+        groups,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+          hasNextPage: page * limit < total
+        }
+      };
+    }
+
+    const groups = await prisma.studyGroup.findMany({
       where,
       include: {
         subject: true,
@@ -49,7 +87,10 @@ export class GroupsRepository {
       },
       orderBy: { createdAt: 'desc' }
     });
+
+    return { groups };
   }
+
 
   async updateGroup(id: string, data: Prisma.StudyGroupUpdateInput): Promise<StudyGroup> {
     return prisma.studyGroup.update({
@@ -114,6 +155,25 @@ export class GroupsRepository {
         studyGroupId,
         role: 'admin'
       }
+    });
+  }
+
+  async findGroupChats(studyGroupId: string) {
+    return prisma.chatMessage.findMany({
+      where: { studyGroupId },
+      include: {
+        user: {
+          select: {
+            id: true,
+            fullName: true,
+            role: true,
+            level: true,
+          }
+        }
+      },
+      orderBy: { createdAt: 'asc' },
+      // Optional: limit to last 50 messages for simplicity
+      take: 50,
     });
   }
 }

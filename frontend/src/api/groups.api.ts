@@ -2,8 +2,8 @@ import { axiosInstance } from './axiosInstance';
 import type { CreateGroupPayload } from '../types';
 
 export const groupsApi = {
-  getAllGroups: async () => {
-    const response = await axiosInstance.get('/groups');
+  getAllGroups: async (params?: { subjectId?: string; search?: string; page?: number; limit?: number }) => {
+    const response = await axiosInstance.get('/groups', { params });
     return response.data;
   },
 
@@ -44,6 +44,11 @@ export const groupsApi = {
 
   removeMember: async (groupId: string, userId: string) => {
     const response = await axiosInstance.delete(`/groups/${groupId}/members/${userId}`);
+    return response.data;
+  },
+
+  getGroupChats: async (groupId: string) => {
+    const response = await axiosInstance.get(`/groups/${groupId}/chats`);
     return response.data;
   },
 };

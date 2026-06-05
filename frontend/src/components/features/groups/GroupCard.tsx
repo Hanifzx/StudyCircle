@@ -41,6 +41,11 @@ export function GroupCard({ group, isMember, onJoin, onClick }: GroupCardProps) 
       <div className="flex flex-col gap-2 flex-grow">
         <h3 className="text-lg font-semibold text-white group-hover:text-primary-400 transition-colors duration-300 line-clamp-1 relative z-10">
           {group.name}
+          {(group as any).matchScore !== undefined && (
+            <span className="ml-2 text-xs font-normal px-2 py-0.5 rounded bg-green-500/20 text-green-400 border border-green-500/30">
+              {(group as any).matchScore}% Cocok
+            </span>
+          )}
         </h3>
         {group.description && (
           <p className="text-sm text-gray-400 line-clamp-2">

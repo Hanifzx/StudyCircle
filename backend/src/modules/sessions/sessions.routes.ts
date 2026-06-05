@@ -25,6 +25,7 @@ sessionsRouter.post('/:sessionId/leave', controller.leaveSession);
 // Group specific session routes to be mounted in groups.routes.ts
 export const groupSessionsRouter = Router({ mergeParams: true });
 groupSessionsRouter.use(requireAuth);
+groupSessionsRouter.get('/optimal-schedule', controller.getOptimalSchedule);
 groupSessionsRouter.post('/', validate(createSessionSchema), controller.createSession);
 groupSessionsRouter.get('/', controller.getGroupSessions);
 

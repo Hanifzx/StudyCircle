@@ -16,9 +16,44 @@ export class MaterialsRepository {
     });
   }
 
-  async findMaterialsByGroupId(groupId: string) {
-    return prisma.material.findMany({
-      where: { studyGroupId: groupId },
+  async findMaterialsByGroupId(groupId: string, page?: number, limit?: number) {
+    const where = { studyGroupId: groupId };
+
+    if (page && limit) {
+      const skip = (page - 1) * limit;
+      const take = limit;
+      const [materials, total] = await prisma.$transaction([
+        prisma.material.findMany({
+          where,
+          orderBy: { uploadedAt: 'desc' },
+          include: {
+            uploader: {
+              select: {
+                id: true,
+                fullName: true,
+                username: true,
+              }
+            }
+          },
+          skip,
+          take
+        }),
+        prisma.material.count({ where })
+      ]);
+      return {
+        materials,
+        pagination: {
+          page,
+          limit,
+          total,
+          totalPages: Math.ceil(total / limit),
+          hasNextPage: page * limit < total
+        }
+      };
+    }
+
+    const materials = await prisma.material.findMany({
+      where,
       orderBy: { uploadedAt: 'desc' },
       include: {
         uploader: {
@@ -30,6 +65,8 @@ export class MaterialsRepository {
         }
       }
     });
+
+    return { materials };
   }
 
   async deleteMaterial(materialId: string) {

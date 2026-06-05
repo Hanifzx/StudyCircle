@@ -1,16 +1,16 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Modal } from '../../common/Modal';
 import { FormInput } from '../../common/FormInput';
 import { Button } from '../../common/Button';
-import { groupsApi } from '../../../api/groups.api';
 import { subjectsApi } from '../../../api/subjects.api';
-import type { Subject } from '../../../types';
+import { useCreateGroupMutation } from '../../../hooks/useGroupsQuery';
 
 interface CreateGroupModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onCreated: () => void;
+  onCreated?: () => void;
 }
 
 export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModalProps) {
@@ -19,39 +19,24 @@ export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModa
   const [description, setDescription] = useState('');
   const [subjectId, setSubjectId] = useState('');
   const [maxMembers, setMaxMembers] = useState('');
-  const [subjects, setSubjects] = useState<Subject[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [subjectsLoading, setSubjectsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (isOpen) {
-      const fetchSubjects = async () => {
-        try {
-          setSubjectsLoading(true);
-          const response = await subjectsApi.getAllSubjects();
-          if (response.success && response.data) {
-            setSubjects(response.data);
-          }
-        } catch (err: any) {
-          console.error("Gagal mengambil mata kuliah:", err);
-          setError("Gagal memuat daftar mata kuliah");
-        } finally {
-          setSubjectsLoading(false);
-        }
-      };
-      fetchSubjects();
-    }
-  }, [isOpen]);
+  // Fetch subjects using React Query
+  const { data: subjects = [], isLoading: loadingSubjects } = useQuery({
+    queryKey: ['subjects'],
+    queryFn: subjectsApi.getSubjects,
+    enabled: isOpen,
+  });
+
+  const createGroupMutation = useCreateGroupMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim() || !subjectId.trim()) return;
 
     try {
-      setLoading(true);
       setError(null);
-      const res = await groupsApi.createGroup({
+      const res = await createGroupMutation.mutateAsync({
         name: name.trim(),
         description: description.trim() || undefined,
         subjectId: subjectId.trim(),
@@ -62,15 +47,13 @@ export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModa
       setDescription('');
       setSubjectId('');
       setMaxMembers('');
-      onCreated();
+      if (onCreated) onCreated();
       onClose();
       if (res?.data?.id) {
         navigate(`/groups/${res.data.id}`);
       }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Gagal membuat grup');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -103,14 +86,14 @@ export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModa
             onChange={(e) => setSubjectId(e.target.value)}
             className="w-full px-3.5 py-2.5 rounded-lg bg-dark-bg text-white border border-dark-border focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:outline-none transition-all duration-200 text-sm"
             required
-            disabled={subjectsLoading}
+            disabled={loadingSubjects}
           >
             <option value="" disabled>
-              {subjectsLoading ? 'Memuat mata kuliah...' : 'Pilih mata kuliah'}
+              {loadingSubjects ? 'Memuat mata kuliah...' : 'Pilih mata kuliah'}
             </option>
-            {subjects.map((sub) => (
-              <option key={sub.id} value={sub.id}>
-                {sub.code} {sub.name}
+            {subjects.map((subject) => (
+              <option key={subject.id} value={subject.id}>
+                {subject.code} {subject.name}
               </option>
             ))}
           </select>
@@ -141,10 +124,10 @@ export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModa
         />
 
         <div className="flex justify-end gap-3 mt-4">
-          <Button type="button" variant="ghost" onClick={onClose} disabled={loading}>
+          <Button type="button" variant="ghost" onClick={onClose} disabled={createGroupMutation.isPending}>
             Batal
           </Button>
-          <Button type="submit" loading={loading} disabled={!name.trim() || !subjectId.trim()}>
+          <Button type="submit" loading={createGroupMutation.isPending} disabled={!name.trim() || !subjectId.trim()}>
             Buat Grup
           </Button>
         </div>

@@ -105,6 +105,39 @@ async function main() {
     },
   ];
 
+  const adminUser = {
+    username: "admin",
+    email: "admin@studycircle.ac.id",
+    fullName: "System Admin",
+    semester: null,
+    style: "Reading/Writing",
+  };
+
+  // Seed Admin
+  const admin = await prisma.user.upsert({
+    where: { email: adminUser.email },
+    update: {
+      role: "ADMIN",
+    },
+    create: {
+      username: adminUser.username,
+      email: adminUser.email,
+      passwordHash: defaultPassword,
+      fullName: adminUser.fullName,
+      semester: adminUser.semester,
+      role: "ADMIN",
+    },
+  });
+
+  await prisma.learningStyle.upsert({
+    where: { userId: admin.id },
+    update: { primaryStyle: adminUser.style },
+    create: {
+      userId: admin.id,
+      primaryStyle: adminUser.style,
+    },
+  });
+
   for (const u of dummyUsers) {
     const user = await prisma.user.upsert({
       where: { email: u.email },

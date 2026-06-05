@@ -33,13 +33,31 @@ export class MaterialsService {
       uploader: { connect: { id: userId } },
     };
 
-    return this.repository.createMaterial(materialData);
+    const material = await this.repository.createMaterial(materialData);
+    
+    // Gamification: +10 points for uploading material
+    const gamification = new (require('../gamification/gamification.service').GamificationService)();
+    await gamification.awardPoints(userId, 10);
+
+    // Notify group members via DB & Socket
+    const { NotificationsService } = require('../notifications/notifications.service');
+    const notificationsService = new NotificationsService();
+    await notificationsService.notifyGroupMembers(
+      groupId,
+      userId,
+      'Materi Baru',
+      `Materi baru "${material.title}" telah diunggah!`,
+      'MATERIAL_UPLOADED',
+      `/groups/${groupId}`
+    );
+
+    return material;
   }
 
-  async getGroupMaterials(userId: string, groupId: string) {
+  async getGroupMaterials(userId: string, groupId: string, page?: number, limit?: number) {
     // 5. Only group members can view materials
     await this.requireMember(groupId, userId);
-    return this.repository.findMaterialsByGroupId(groupId);
+    return this.repository.findMaterialsByGroupId(groupId, page, limit);
   }
 
   async deleteMaterial(userId: string, materialId: string) {

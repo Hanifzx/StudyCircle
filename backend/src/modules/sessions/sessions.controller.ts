@@ -33,6 +33,16 @@ export class SessionsController {
     }
   };
 
+  getOptimalSchedule = async (req: Request, res: Response) => {
+    try {
+      const groupId = req.params.groupId as string;
+      const schedules = await this.service.getOptimalSchedule(groupId);
+      res.status(200).json({ success: true, data: schedules });
+    } catch (error: any) {
+      res.status(400).json({ error: error.message });
+    }
+  };
+
   getSessionDetails = async (req: Request, res: Response) => {
     try {
       const sessionId = req.params.sessionId as string;

@@ -16,12 +16,18 @@ export class GroupsController {
 
   async getGroups(req: Request, res: Response, next: NextFunction) {
     try {
-      const { subjectId, search } = req.query;
-      const groups = await groupsService.getAllGroups({
+      const { subjectId, search, page, limit } = req.query;
+      const result = await groupsService.getAllGroups({
         subjectId: subjectId as string,
-        search: search as string
+        search: search as string,
+        page: page ? parseInt(page as string) : undefined,
+        limit: limit ? parseInt(limit as string) : undefined
       });
-      res.status(200).json({ success: true, data: groups });
+      res.status(200).json({ 
+        success: true, 
+        data: result.groups, 
+        pagination: result.pagination 
+      });
     } catch (error) {
       next(error);
     }
@@ -107,12 +113,28 @@ export class GroupsController {
 
   async getMembers(req: Request, res: Response, next: NextFunction) {
     try {
+      const userId = req.user?.userId;
       const groupId = req.params.groupId as string;
-      const members = await groupsService.getMembers(groupId);
+      const members = await groupsService.getMembers(groupId, userId);
       res.status(200).json({ success: true, data: members });
     } catch (error) {
-      if (error instanceof Error && error.message === 'Group not found') {
-        res.status(404).json({ success: false, message: error.message });
+      if (error instanceof Error && (error.message === 'Group not found' || error.message.includes('Forbidden'))) {
+        res.status(error.message.includes('Forbidden') ? 403 : 404).json({ success: false, message: error.message });
+        return;
+      }
+      next(error);
+    }
+  }
+
+  async getChats(req: Request, res: Response, next: NextFunction) {
+    try {
+      const userId = req.user!.userId;
+      const groupId = req.params.groupId as string;
+      const chats = await groupsService.getGroupChats(userId, groupId);
+      res.status(200).json({ success: true, data: chats });
+    } catch (error) {
+      if (error instanceof Error && error.message.includes('Forbidden')) {
+        res.status(403).json({ success: false, message: error.message });
         return;
       }
       next(error);

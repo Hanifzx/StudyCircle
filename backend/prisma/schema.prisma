@@ -7,6 +7,11 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum UserRole {
+  USER
+  ADMIN
+}
+
 enum MemberRole {
   admin
   member
@@ -32,6 +37,10 @@ model User {
   passwordHash String
   fullName     String
   semester     Int?
+  points       Int      @default(0)
+  level        Int      @default(1)
+  role         UserRole @default(USER)
+  timezone     String   @default("Asia/Jakarta")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 
@@ -42,6 +51,8 @@ model User {
   sessionAttendances SessionAttendance[]
   createdGroups      StudyGroup[]        @relation("CreatedGroups")
   createdSessions    Session[]           @relation("CreatedSessions")
+  chatMessages       ChatMessage[]
+  notifications      Notification[]
 
   @@map("users")
 }
@@ -88,6 +99,7 @@ model StudyGroup {
   members   Member[]
   sessions  Session[]
   materials Material[]
+  chatMessages ChatMessage[]
 
   @@index([subjectId])
   @@index([createdBy])
@@ -187,4 +199,36 @@ model Progress {
   @@unique([userId, subjectId])
   @@index([subjectId])
   @@map("progress")
+}
+
+model ChatMessage {
+  id           String   @id @default(uuid())
+  studyGroupId String
+  userId       String
+  content      String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  studyGroup StudyGroup @relation(fields: [studyGroupId], references: [id], onDelete: Cascade)
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([studyGroupId])
+  @@index([userId])
+  @@map("chat_messages")
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  title     String
+  message   String
+  type      String   // 'MATERIAL_UPLOADED', 'SESSION_CREATED', etc.
+  read      Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@map("notifications")
 }

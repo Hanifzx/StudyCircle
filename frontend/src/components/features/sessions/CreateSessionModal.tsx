@@ -2,44 +2,45 @@ import { useState } from 'react';
 import { Modal } from '../../common/Modal';
 import { FormInput } from '../../common/FormInput';
 import { Button } from '../../common/Button';
-import { sessionsApi } from '../../../api/sessions.api';
+import { useCreateSessionMutation } from '../../../hooks/useSessionsQuery';
 
 interface CreateSessionModalProps {
   isOpen: boolean;
   onClose: () => void;
   groupId: string;
-  onCreated: () => void;
+  onCreated?: () => void;
 }
 
 export function CreateSessionModal({ isOpen, onClose, groupId, onCreated }: CreateSessionModalProps) {
   const [title, setTitle] = useState('');
   const [scheduledStartTime, setScheduledStartTime] = useState('');
   const [scheduledEndTime, setScheduledEndTime] = useState('');
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const createSessionMutation = useCreateSessionMutation();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !scheduledStartTime || !scheduledEndTime) return;
 
     try {
-      setLoading(true);
       setError(null);
-      await sessionsApi.createSession(groupId, {
-        title: title.trim(),
-        scheduledStartTime: new Date(scheduledStartTime).toISOString(),
-        scheduledEndTime: new Date(scheduledEndTime).toISOString(),
+      await createSessionMutation.mutateAsync({
+        groupId,
+        payload: {
+          title: title.trim(),
+          scheduledStartTime: new Date(scheduledStartTime).toISOString(),
+          scheduledEndTime: new Date(scheduledEndTime).toISOString(),
+        },
       });
       // Reset form
       setTitle('');
       setScheduledStartTime('');
       setScheduledEndTime('');
-      onCreated();
+      if (onCreated) onCreated();
       onClose();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to create session');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -79,13 +80,42 @@ export function CreateSessionModal({ isOpen, onClose, groupId, onCreated }: Crea
           required
         />
 
+        <div className="flex justify-start">
+          <Button
+            type="button"
+            variant="info"
+            size="sm"
+            onClick={async () => {
+              try {
+                const { axiosInstance } = await import('../../../api/axiosInstance');
+                const res = await axiosInstance.get(`/sessions/groups/${groupId}/optimal-schedule`);
+                if (res.data?.data && res.data.data.length > 0) {
+                  const best = res.data.data[0];
+                  // format to YYYY-MM-DDTHH:mm
+                  const formatLocal = (d: string) => {
+                    const date = new Date(d);
+                    const pad = (n: number) => n.toString().padStart(2, '0');
+                    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}T${pad(date.getHours())}:${pad(date.getMinutes())}`;
+                  };
+                  setScheduledStartTime(formatLocal(best.scheduledStartTime));
+                  setScheduledEndTime(formatLocal(best.scheduledEndTime));
+                }
+              } catch (err) {
+                console.error("Failed to get optimal schedule", err);
+              }
+            }}
+          >
+            ✨ AI Suggest Optimal Time
+          </Button>
+        </div>
+
         <div className="flex justify-end gap-3 pt-2">
-          <Button variant="ghost" onClick={onClose} disabled={loading}>
+          <Button variant="ghost" onClick={onClose} disabled={createSessionMutation.isPending}>
             Cancel
           </Button>
           <Button
             type="submit"
-            loading={loading}
+            loading={createSessionMutation.isPending}
             disabled={!title.trim() || !scheduledStartTime || !scheduledEndTime}
           >
             Create Session

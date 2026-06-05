@@ -3,15 +3,15 @@ import { Upload } from 'lucide-react';
 import { Modal } from '../../common/Modal';
 import { FormInput } from '../../common/FormInput';
 import { Button } from '../../common/Button';
-import { materialsApi } from '../../../api/materials.api';
 import { isAllowedFileType, ALLOWED_FILE_EXTENSIONS, MAX_FILE_SIZE_BYTES } from '../../../utils/formatFileSize';
 import { formatFileSize } from '../../../utils/formatFileSize';
+import { useUploadMaterialMutation } from '../../../hooks/useMaterialsQuery';
 
 interface UploadMaterialModalProps {
   isOpen: boolean;
   onClose: () => void;
   groupId: string;
-  onUploaded: () => void;
+  onUploaded?: () => void;
 }
 
 export function UploadMaterialModal({ isOpen, onClose, groupId, onUploaded }: UploadMaterialModalProps) {
@@ -19,9 +19,10 @@ export function UploadMaterialModal({ isOpen, onClose, groupId, onUploaded }: Up
   const [description, setDescription] = useState('');
   const [file, setFile] = useState<File | null>(null);
   const [fileError, setFileError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const uploadMaterialMutation = useUploadMaterialMutation();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFileError(null);
@@ -51,7 +52,6 @@ export function UploadMaterialModal({ isOpen, onClose, groupId, onUploaded }: Up
     if (!file || !title.trim()) return;
 
     try {
-      setLoading(true);
       setError(null);
       const formData = new FormData();
       formData.append('file', file);
@@ -59,18 +59,16 @@ export function UploadMaterialModal({ isOpen, onClose, groupId, onUploaded }: Up
       if (description.trim()) {
         formData.append('description', description.trim());
       }
-      await materialsApi.uploadMaterial(groupId, formData);
+      await uploadMaterialMutation.mutateAsync({ groupId, formData });
       // Reset form
       setTitle('');
       setDescription('');
       setFile(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
-      onUploaded();
+      if (onUploaded) onUploaded();
       onClose();
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to upload material');
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -105,7 +103,7 @@ export function UploadMaterialModal({ isOpen, onClose, groupId, onUploaded }: Up
             onChange={(e) => setDescription(e.target.value)}
             placeholder="Enter description (optional)"
             rows={3}
-            className="w-full px-3.5 py-2.5 rounded-lg bg-[#1a2035] text-white placeholder-gray-500 border border-gray-700/50 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 focus:outline-none transition-all duration-200 text-sm resize-none"
+            className="w-full px-3.5 py-2.5 rounded-lg bg-dark-card text-white placeholder-gray-500 border border-gray-700/50 focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:outline-none transition-all duration-200 text-sm resize-none"
           />
         </div>
 
@@ -115,8 +113,12 @@ export function UploadMaterialModal({ isOpen, onClose, groupId, onUploaded }: Up
             File <span className="text-red-400 ml-1">*</span>
           </label>
           <div
-            className="border-2 border-dashed border-gray-700/50 rounded-lg p-6 text-center cursor-pointer hover:border-indigo-500/50 transition-colors"
+            className="border-2 border-dashed border-gray-700/50 rounded-lg p-6 text-center cursor-pointer hover:border-primary-500/50 transition-colors"
             onClick={() => fileInputRef.current?.click()}
+            onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); fileInputRef.current?.click(); } }}
+            role="button"
+            tabIndex={0}
+            aria-label="Pilih file untuk diunggah"
           >
             <Upload className="w-8 h-8 text-gray-500 mx-auto mb-2" />
             {file ? (
@@ -145,10 +147,10 @@ export function UploadMaterialModal({ isOpen, onClose, groupId, onUploaded }: Up
         </div>
 
         <div className="flex justify-end gap-3 pt-2">
-          <Button variant="ghost" onClick={onClose} disabled={loading}>
+          <Button variant="ghost" onClick={onClose} disabled={uploadMaterialMutation.isPending}>
             Cancel
           </Button>
-          <Button type="submit" loading={loading} disabled={!file || !title.trim()}>
+          <Button type="submit" loading={uploadMaterialMutation.isPending} disabled={!file || !title.trim()}>
             Upload
           </Button>
         </div>

@@ -1,17 +1,12 @@
 import { Router } from 'express';
-import { prisma } from '../../config/database';
+import { SubjectsController } from './subjects.controller';
 import { requireAuth } from '../../middleware/auth.middleware';
 
-export const subjectsRouter = Router();
+const router = Router();
+const subjectsController = new SubjectsController();
 
-// Retrieve all subjects (ordered by code)
-subjectsRouter.get('/', requireAuth, async (req, res, next) => {
-  try {
-    const subjects = await prisma.subject.findMany({
-      orderBy: { code: 'asc' }
-    });
-    res.status(200).json({ success: true, data: subjects });
-  } catch (error) {
-    next(error);
-  }
-});
+router.use(requireAuth);
+
+router.get('/', subjectsController.getSubjects);
+
+export default router;

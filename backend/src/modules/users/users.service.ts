@@ -10,7 +10,7 @@ export async function getProfile(userId: string) {
   return userWithoutPassword;
 }
 
-export async function updateProfile(userId: string, data: { fullName?: string; semester?: number }) {
+export async function updateProfile(userId: string, data: { fullName?: string; semester?: number; timezone?: string }) {
   const updatedUser = await usersRepo.updateUser(userId, data);
   const { passwordHash: _, ...userWithoutPassword } = updatedUser;
   return userWithoutPassword;
@@ -19,4 +19,8 @@ export async function updateProfile(userId: string, data: { fullName?: string; s
 export async function updateLearningStyle(userId: string, primaryStyle: string, secondaryStyle?: string) {
   await usersRepo.upsertLearningStyle(userId, primaryStyle, secondaryStyle);
   return getProfile(userId);
+}
+
+export async function getLeaderboard(limit?: number) {
+  return usersRepo.getLeaderboard(limit);
 }

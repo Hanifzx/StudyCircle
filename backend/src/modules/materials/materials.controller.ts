@@ -1,5 +1,10 @@
 import { Request, Response } from 'express';
 import { MaterialsService } from './materials.service';
+import { socketService } from '../../socket';
+import { uploadToCloudinary } from '../../utils/cloudinary';
+import { env } from '../../config/env';
+import fs from 'fs';
+import path from 'path';
 
 export class MaterialsController {
   private service: MaterialsService;
@@ -15,16 +20,29 @@ export class MaterialsController {
       const { title, description } = req.body;
       const file = req.file;
 
-      if (!file) {
+      if (!file || !file.buffer) {
         throw new Error('No file uploaded or file type is not allowed');
       }
 
-      // We store the relative path for the fileUrl (e.g., /uploads/materials/filename.pdf)
-      // On the frontend, this can be prepended with the backend server URL.
-      // But for express static to serve it properly when mounted at /uploads,
-      // it should ideally be stored as `uploads/materials/filename.pdf` or similar.
-      // We will store it exactly as the relative path to the project root.
-      const fileUrl = file.path.replace(process.cwd(), '').replace(/\\/g, '/').replace(/^\//, '');
+      let fileUrl = '';
+
+      if (env.CLOUDINARY_URL) {
+        // Upload to Cloudinary
+        fileUrl = await uploadToCloudinary(file.buffer, 'studycircle/materials', file.originalname);
+      } else {
+        // Fallback: save to disk locally
+        const uploadDir = path.join(process.cwd(), 'uploads', 'materials');
+        if (!fs.existsSync(uploadDir)) {
+          fs.mkdirSync(uploadDir, { recursive: true });
+        }
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+        const ext = path.extname(file.originalname);
+        const filename = file.fieldname + '-' + uniqueSuffix + ext;
+        const filePath = path.join(uploadDir, filename);
+        
+        fs.writeFileSync(filePath, file.buffer);
+        fileUrl = `uploads/materials/${filename}`;
+      }
 
       const material = await this.service.uploadMaterial(userId, groupId, {
         title,
@@ -32,6 +50,13 @@ export class MaterialsController {
         fileUrl,
         fileType: file.mimetype,
         fileSize: file.size,
+      });
+
+      // Emit real-time notification to the group
+      socketService.notifyGroup(groupId, 'material_uploaded', {
+        id: material.id,
+        title: material.title,
+        uploadedBy: material.uploadedBy,
       });
 
       res.status(201).json({ data: material });
@@ -44,9 +69,16 @@ export class MaterialsController {
     try {
       const groupId = req.params.groupId as string;
       const userId = req.user!.userId;
+      const { page, limit } = req.query;
 
-      const materials = await this.service.getGroupMaterials(userId, groupId);
-      const mappedMaterials = materials.map((m: any) => ({
+      const result = await this.service.getGroupMaterials(
+        userId, 
+        groupId,
+        page ? parseInt(page as string) : undefined,
+        limit ? parseInt(limit as string) : undefined
+      );
+
+      const mappedMaterials = result.materials.map((m: any) => ({
         id: m.id,
         title: m.title,
         description: m.description,
@@ -57,7 +89,12 @@ export class MaterialsController {
         uploaderName: m.uploader?.fullName || m.uploader?.username || 'Unknown',
         uploaderId: m.uploadedBy
       }));
-      res.status(200).json({ data: mappedMaterials });
+
+      res.status(200).json({ 
+        success: true, 
+        data: mappedMaterials, 
+        pagination: result.pagination 
+      });
     } catch (error: any) {
       res.status(400).json({ error: error.message });
     }

@@ -31,3 +31,13 @@ export async function updateLearningStyle(req: Request, res: Response, next: Nex
     next(error);
   }
 }
+
+export async function getLeaderboard(req: Request, res: Response, next: NextFunction) {
+  try {
+    const limit = req.query.limit ? parseInt(req.query.limit as string, 10) : 10;
+    const leaderboard = await usersService.getLeaderboard(limit);
+    res.status(200).json({ success: true, data: leaderboard });
+  } catch (error) {
+    next(error);
+  }
+}

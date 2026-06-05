@@ -43,7 +43,25 @@ export class SessionsService {
       creator: { connect: { id: userId } }
     };
 
-    return this.repository.createSession(sessionData);
+    const session = await this.repository.createSession(sessionData);
+
+    // Gamification: +5 points for creating a session
+    const gamification = new (require('../gamification/gamification.service').GamificationService)();
+    await gamification.awardPoints(userId, 5);
+
+    // Notify group members via DB & Socket
+    const { NotificationsService } = require('../notifications/notifications.service');
+    const notificationsService = new NotificationsService();
+    await notificationsService.notifyGroupMembers(
+      groupId,
+      userId,
+      'Sesi Diskusi Baru',
+      `Sesi diskusi baru "${session.title}" dijadwalkan!`,
+      'SESSION_CREATED',
+      `/groups/${groupId}`
+    );
+
+    return session;
   }
 
   async getGroupSessions(userId: string, groupId: string) {
@@ -222,6 +240,32 @@ export class SessionsService {
     }
 
     return result;
+  }
+
+  async getOptimalSchedule(groupId: string) {
+    // Implementasi heuristic AI scheduling
+    // Mencari waktu mulai (jam 10:00, 14:00, atau 19:00 UTC) di esok hari
+    // Dalam skenario dunia nyata, kita akan mencocokkan ketersediaan anggota & timezone
+    const tomorrow = new Date();
+    tomorrow.setDate(tomorrow.getDate() + 1);
+    
+    // Hasilkan 3 opsi jadwal
+    const options = [10, 14, 19].map(hour => {
+      const start = new Date(tomorrow);
+      start.setUTCHours(hour, 0, 0, 0);
+      
+      const end = new Date(start);
+      end.setUTCHours(hour + 2, 0, 0, 0); // Sesi 2 jam
+      
+      return {
+        scheduledStartTime: start,
+        scheduledEndTime: end,
+        confidenceScore: Math.floor(Math.random() * 20) + 80 // Mock score 80-99%
+      };
+    });
+
+    // Urutkan berdasarkan score
+    return options.sort((a, b) => b.confidenceScore - a.confidenceScore);
   }
 
   // --- Helper Methods ---

@@ -1,8 +1,9 @@
 import { useState, useMemo } from 'react';
+import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ArrowRight } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { useGroups } from '../hooks/useGroups';
+import { useGroupsInfiniteQuery, useJoinGroupMutation } from '../hooks/useGroupsQuery';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { EmptyState } from '../components/common/EmptyState';
 import { Button } from '../components/common/Button';
@@ -14,12 +15,16 @@ import { Badge } from '../components/common/Badge';
 export function DashboardPage() {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { groups, loading: groupsLoading, joinGroup } = useGroups();
-  
+
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [joinError, setJoinError] = useState<string | null>(null);
 
-  const isLoading = groupsLoading;
+  // Fetch groups using React Query
+  const { data, isLoading } = useGroupsInfiniteQuery({ search: searchQuery, limit: 6 });
+  const joinMutation = useJoinGroupMutation();
+
+  const groups = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);
 
   const tabs = [
     { key: 'all', label: 'Semua' },
@@ -30,14 +35,6 @@ export function DashboardPage() {
 
   const filteredGroups = useMemo(() => {
     let result = groups;
-
-    if (searchQuery) {
-      const q = searchQuery.toLowerCase();
-      result = result.filter(g => 
-        g.name.toLowerCase().includes(q) || 
-        g.description?.toLowerCase().includes(q)
-      );
-    }
 
     switch (activeTab) {
       case 'available':
@@ -54,14 +51,14 @@ export function DashboardPage() {
     }
 
     return result;
-  }, [groups, activeTab, searchQuery]);
+  }, [groups, activeTab]);
 
   if (isLoading) {
     return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
   }
 
   // Identify "My Groups" based on membership
-  const myGroups = groups.filter(g => g.members?.some(m => m.userId === user?.id));
+  const myGroups = groups.filter(g => g.members?.some((m: any) => m.userId === user?.id));
   const upcomingSessionGroup = myGroups[0] || groups[0]; // mock upcoming session
 
   return (
@@ -77,7 +74,7 @@ export function DashboardPage() {
       </div>
 
       {/* Sesi Terdekat Hero Card */}
-      <section>
+      <section aria-label="Sesi terdekat">
         <h2 className="text-xl font-bold text-white mb-4">Sesi Terdekat</h2>
         {upcomingSessionGroup ? (
           <div className="glass-panel rounded-3xl p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden group hover:shadow-[0_8px_32px_0_rgba(203,166,247,0.2)] transition-shadow duration-500">
@@ -113,7 +110,7 @@ export function DashboardPage() {
       </section>
 
       {/* Temukan Grup Baru Section */}
-      <section className="animate-fade-in-up animate-delay-100">
+      <section aria-label="Temukan grup baru" className="animate-fade-in-up animate-delay-100">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
           <h2 className="text-xl font-bold text-white">Temukan Grup Baru</h2>
           
@@ -135,6 +132,19 @@ export function DashboardPage() {
           className="mb-6"
         />
 
+        {joinError && (
+          <div role="alert" aria-live="assertive" className="bg-red-500/10 border border-red-500/20 text-red-400 text-sm px-4 py-3 rounded-lg mb-4 flex items-center justify-between">
+            <span>{joinError}</span>
+            <button
+              onClick={() => setJoinError(null)}
+              className="text-red-400 hover:text-red-300 ml-3"
+              aria-label="Tutup peringatan"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+        )}
+
         {filteredGroups.length === 0 ? (
           <EmptyState
             title="Grup tidak ditemukan"
@@ -143,7 +153,7 @@ export function DashboardPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             {filteredGroups.map((group) => {
-              const isMember = group.members?.some(m => m.userId === user?.id);
+              const isMember = group.members?.some((m: any) => m.userId === user?.id);
               return (
                 <GroupCard
                   key={group.id}
@@ -151,10 +161,11 @@ export function DashboardPage() {
                   isMember={isMember}
                   onJoin={async () => {
                     try {
-                      await joinGroup(group.id);
+                      setJoinError(null);
+                      await joinMutation.mutateAsync(group.id);
                       navigate(`/groups/${group.id}`);
                     } catch (err: any) {
-                      alert(err.response?.data?.message || 'Gagal bergabung dengan grup');
+                      setJoinError(err.response?.data?.message || 'Gagal bergabung dengan grup');
                     }
                   }}
                   onClick={() => navigate(`/groups/${group.id}`)}

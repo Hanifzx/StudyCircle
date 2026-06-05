@@ -1,18 +1,16 @@
-import { useEffect } from 'react';
 import { TrendingUp } from 'lucide-react';
-import { useProgress } from '../hooks/useProgress';
+import { useUserProgressQuery, useProgressSummaryQuery } from '../hooks/useProgressQuery';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { EmptyState } from '../components/common/EmptyState';
 import { SummaryStats } from '../components/features/progress/SummaryStats';
 import { ProgressCard } from '../components/features/progress/ProgressCard';
 
 export function ProgressPage() {
-  const { progress, summary, loading, error, fetchProgress, fetchSummary } = useProgress();
+  const { data: progress = [], isLoading: progressLoading, error: progressError } = useUserProgressQuery();
+  const { data: summary, isLoading: summaryLoading, error: summaryError } = useProgressSummaryQuery();
 
-  useEffect(() => {
-    fetchProgress();
-    fetchSummary();
-  }, []);
+  const loading = progressLoading || summaryLoading;
+  const error = progressError || summaryError;
 
   if (loading) {
     return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
@@ -21,13 +19,13 @@ export function ProgressPage() {
   if (error) {
     return (
       <div className="text-center py-16">
-        <p className="text-red-400">{error}</p>
+        <p className="text-red-400">Gagal memuat progres belajar.</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 animate-fade-in-up">
       <h1 className="text-2xl font-bold text-white">Learning Progress</h1>
 
       {/* Summary */}
@@ -42,7 +40,7 @@ export function ProgressPage() {
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {progress.map((p) => (
+          {progress.map((p: any) => (
             <ProgressCard key={p.id} progress={p} />
           ))}
         </div>

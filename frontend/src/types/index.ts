@@ -8,7 +8,11 @@ export interface User {
   email: string;
   fullName: string;
   semester?: number;
-  role: string;
+  bio?: string;
+  role: 'USER' | 'ADMIN';
+  level: number;
+  points: number;
+  learningStyle?: LearningStyle;
 }
 
 export interface UserProfile {
@@ -16,9 +20,14 @@ export interface UserProfile {
   username: string;
   email: string;
   fullName: string;
-  semester?: number;
+  semester: number | null;
   bio?: string;
-  learningStyle?: LearningStyle;
+  role: 'USER' | 'ADMIN';
+  level: number;
+  points: number;
+  learningStyle?: {
+    primaryStyle: string;
+  };
 }
 
 export interface LearningStyle {
@@ -68,7 +77,7 @@ export interface Subject {
   id: string;
   code: string;
   name: string;
-  description?: string;
+  description?: string | null;
 }
 
 export interface CreateGroupPayload {
