@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 import {
   LayoutDashboard,
   Users,
@@ -11,25 +11,22 @@ import {
   Trophy,
 } from 'lucide-react';
 import { Button } from '../common/Button';
-import { CreateGroupModal } from '../features/groups/CreateGroupModal';
 
 interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  onCreateGroupClick?: () => void;
 }
 
 const navItems = [
   { to: '/dashboard', label: 'Beranda', icon: LayoutDashboard, end: true },
-  { to: '/progress', label: 'Grup Saya', icon: Users, end: false }, // mapping Progress to Grup Saya for now, wait we should map to actual paths
+  { to: '/progress', label: 'Grup Saya', icon: Users, end: false },
   { to: '/groups', label: 'Cari Grup', icon: Search, end: false },
   { to: '/leaderboard', label: 'Klasemen', icon: Trophy, end: false },
   { to: '/profile', label: 'Pengaturan', icon: Settings, end: false },
 ];
 
-export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
-  const [showCreateModal, setShowCreateModal] = useState(false);
-  const navigate = useNavigate();
-
+export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onCreateGroupClick }) => {
   return (
     <>
       {/* Mobile overlay backdrop */}
@@ -69,7 +66,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
 
         {/* Primary Action */}
         <div className="px-5 mb-4 mt-2 shrink-0">
-          <Button variant="primary" className="w-full justify-center" onClick={() => setShowCreateModal(true)}>
+          <Button variant="primary" className="w-full justify-center" onClick={onCreateGroupClick}>
             <Plus className="w-4 h-4" />
             Buat Grup Baru
           </Button>
@@ -115,16 +112,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
           </NavLink>
         </div>
       </aside>
-
-      {/* Create Group Modal */}
-      <CreateGroupModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onCreated={() => {
-          setShowCreateModal(false);
-          navigate('/groups');
-        }}
-      />
     </>
   );
 };

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Modal } from '../../common/Modal';
 import { FormInput } from '../../common/FormInput';
@@ -13,6 +14,7 @@ interface CreateGroupModalProps {
 }
 
 export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModalProps) {
+  const navigate = useNavigate();
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [subjectId, setSubjectId] = useState('');
@@ -34,7 +36,7 @@ export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModa
 
     try {
       setError(null);
-      await createGroupMutation.mutateAsync({
+      const res = await createGroupMutation.mutateAsync({
         name: name.trim(),
         description: description.trim() || undefined,
         subjectId: subjectId.trim(),
@@ -47,6 +49,9 @@ export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModa
       setMaxMembers('');
       if (onCreated) onCreated();
       onClose();
+      if (res?.data?.id) {
+        navigate(`/groups/${res.data.id}`);
+      }
     } catch (err: any) {
       setError(err.response?.data?.error || 'Gagal membuat grup');
     }
