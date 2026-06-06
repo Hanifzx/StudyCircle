@@ -228,5 +228,5 @@ Buka browser di `http://localhost:5173` 🎉
 <div align="center">
   <br />
   <p>Didesain dan dikembangkan secara eksklusif untuk <b>Universitas Hasanuddin</b> <br />
-  &copy; {new Date().getFullYear()} Tim Kelompok 4 - Pemrograman Web Lanjutan.</p>
+  &copy; 2026 Tim Kelompok 4 - Pemrograman Web Lanjutan.</p>
 </div>
