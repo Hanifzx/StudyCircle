@@ -3,7 +3,7 @@
   
   # StudyCircle 🎓✨
 
-  **Platform Koordinasi Study Group dengan AI Schedule Optimizer**
+  **Platform Koordinasi Study Group Bertenaga AI & Real-Time Collaboration**
 
   [![React](https://img.shields.io/badge/React-19.0+-61DAFB?logo=react&logoColor=black)](#)
   [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?logo=typescript&logoColor=white)](#)
@@ -15,150 +15,218 @@
   [![Socket.io](https://img.shields.io/badge/Socket.io-Realtime-010101?logo=socketdotio&logoColor=white)](#)
   
   <br />
-  <i>Tugas Mata Kuliah Pemrograman Web Lanjutan</i>
+  <i>Tugas Mata Kuliah Pemrograman Web Lanjutan - Universitas Hasanuddin</i>
 </div>
 
 <br />
 
-> **StudyCircle** adalah platform kolaborasi edukatif berskala *enterprise* yang dirancang untuk mengatasi hambatan koordinasi mahasiswa dalam membentuk kelompok belajar. Memanfaatkan arsitektur *event-driven* (*real-time*) dan algoritma *heuristic scoring* (AI), platform ini menyediakan ekosistem terpadu (*end-to-end*)—mulai dari pencocokan grup cerdas, optimalisasi jadwal pertemuan multi-zona waktu, hingga ruang rapat virtual terintegrasi.
+> **StudyCircle** adalah platform kolaborasi edukatif berskala *enterprise* yang memecahkan masalah inefisiensi dalam pembentukan kelompok belajar. Dengan mengimplementasikan arsitektur *event-driven* latensi rendah dan algoritma *heuristic scoring*, aplikasi ini menjembatani mahasiswa lintas zona waktu untuk menemukan rekan belajar yang ideal, mengatur jadwal optimal secara otomatis, dan berkolaborasi di dalam *virtual room* yang terintegrasi penuh.
 
 ---
 
-## 👥 Tim Pengembang (Kelompok 4)
+## 📑 Daftar Isi
+- [👥 Tim Pengembang](#-tim-pengembang)
+- [✨ Core Features & Technical Implementation](#-core-features--technical-implementation)
+- [📐 System Architecture](#-system-architecture)
+- [🗄️ Database Schema](#️-database-schema)
+- [📂 Struktur Direktori (Monorepo)](#-struktur-direktori-monorepo)
+- [🌐 REST API Endpoints](#-rest-api-endpoints)
+- [🚀 Panduan Instalasi Lokal](#-panduan-instalasi-lokal)
+- [🧪 Testing & Deployment](#-testing--deployment)
 
-Proyek ini dirancang dan dikembangkan dengan standar industri oleh:
+---
 
-| Nama | NIM | Tanggung Jawab Utama |
+## 👥 Tim Pengembang
+
+Proyek ini dirancang secara komprehensif mengikuti siklus SDLC (*Software Development Life Cycle*) modern oleh Kelompok 4:
+
+| Nama | NIM | Tanggung Jawab & Spesialisasi |
 | :--- | :--- | :--- |
-| **Imam Dzaqhoir** | `H071241048` | *Fullstack Engineer & AI Integrator* - Merancang algoritma *heuristic matching* dan arsitektur *backend*. |
-| **Muh. Hanif Nurmahdin** | `H071241033` | *Frontend Developer & UI/UX Designer* - Mengembangkan antarmuka *glassmorphism* modern dan responsif. |
-| **Haris** | `H071241070` | *Backend Developer & Database Architect* - Mendesain skema basis data relasional (Prisma) dan optimasi *query*. |
+| **Imam Dzaqhoir** | `H071241048` | **Fullstack Engineer & AI Integrator**<br/>Merancang logika bisnis *backend*, implementasi JWT *Auth*, integrasi Socket.io, dan mendesain algoritma komputasi *heuristic matching* serta *scheduling*. |
+| **Muh. Hanif Nurmahdin** | `H071241033` | **Frontend Developer & UI/UX Designer**<br/>Membangun antarmuka PWA responsif menggunakan React 19 & Tailwind v4, mengimplementasi *glassmorphism*, dan merancang alur UX (*User Experience*) yang intuitif. |
+| **Haris** | `H071241070` | **Backend Developer & Database Architect**<br/>Mendesain skema basis data PostgreSQL, relasi entitas via Prisma ORM, normalisasi data, serta optimalisasi kueri (*query optimization*). |
 
 ---
 
-## ✨ Fitur Unggulan (Core Features)
+## ✨ Core Features & Technical Implementation
 
-### 🤖 1. AI-Powered Matching & Schedule Optimizer
-Pendekatan algoritmik untuk menyelesaikan konflik penjadwalan komunal.
-- **Smart Group Recommendation**: Menggunakan *weighted heuristic scoring* untuk merekomendasikan grup belajar berdasarkan kompatibilitas **Gaya Belajar (Learning Style)** dan **Zona Waktu (Timezone)**, memaksimalkan probabilitas keaktifan grup.
-- **AI Schedule Optimizer**: Menganalisis kalender historis anggota grup, irisan ketersediaan, dan preferensi zona waktu untuk mengkalkulasi dan menyarankan slot waktu diskusi paling optimal secara asinkron.
+### 1. 🤖 Algoritma Heuristic Matching & AI Scheduling
+- **Weighted Group Matching**: Berjalan di *service layer backend*, algoritma ini mengevaluasi setiap *study group* terhadap profil pengguna. Skor kecocokan dikalkulasi menggunakan bobot: `Learning Style Match (50%)`, `Timezone Proximity (30%)`, dan `Capacity Availability (20%)`.
+- **Intersection Scheduling**: Menghitung *Time-to-UTC* seluruh anggota grup secara dinamis dan mencari celah waktu bersinggungan (*intersection windows*) tertinggi. Sistem mengembalikan 3 opsi waktu pertemuan paling rasional (*Confidence Score > 80%*).
 
-### 🎥 2. Terintegrasi Virtual Room (Jitsi WebRTC)
-Kolaborasi *real-time* *frictionless* tanpa dependensi aplikasi luar.
-- Ruang rapat (*video call* / *screen sharing*) dimuat langsung ke dalam sesi aplikasi menggunakan **Jitsi React SDK**.
-- Pembuatan token kamar (*room hash*) yang aman secara otomatis berdasarkan entitas `Session ID`, mencegah penyusup (*unauthorized entry*).
+### 2. 🎥 Integrasi Jitsi WebRTC (Virtual Study Room)
+- **Iframe Sandboxing**: Menggunakan `@jitsi/react-sdk` untuk me-*render* antarmuka *video conference* secara aman di dalam DOM komponen `SessionDetailPage.tsx` tanpa navigasi *pop-up*.
+- **Dynamic Room Hashing**: ID Kamar digenerasi dari kombinasi fungsi *hash* (MD5) dan UUID Sesi, memastikan keamanan dan mencegah intrusi kamar tidak sah.
 
-### 🎮 3. Sistem Gamifikasi (Learn & Earn)
-Membangun metrik *retention* pengguna melalui sistem *reward*.
-- **EXP & Leveling Engine**: Menghitung waktu partisipasi sesi pengguna dan mengonversinya menjadi *Experience Points*.
-- **Global Leaderboard**: Agregasi metrik performa (*study hours*, *attendance rate*) untuk menampilkan peringkat kompetitif.
+### 3. ⚡ Event-Driven Real-Time Architecture
+- Memanfaatkan **Socket.io** dengan konfigurasi transport `websocket` *polling fallback*.
+- **Multiplexing Namespaces**: Mengisolasi jalur data antara percakapan grup (`/chat`) dan notifikasi global aplikasi (`/notifications`).
+- *In-App Notification Bell* akan segera menyala berkat sinkronisasi *state* dari *socket client* ke `useQuery` *cache* (Tanstack Query).
 
-### ⚡ 4. Real-Time Event Architecture (Socket.io)
-Sistem notifikasi latensi rendah dengan koneksi *WebSocket* persisten.
-- **Live Group Chat**: Pesan dikirimkan secara instan (*bi-directional*) di dalam masing-masing ruang lingkup *study group*.
-- **In-App Push Notifications**: Notifikasi proaktif setiap kali terdapat aktivitas krusial (jadwal baru, undangan, perubahan status sesi).
-
-### 📱 5. Progressive Web App (PWA) & Offline-Ready
-Pengalaman setara aplikasi *native* dengan manajemen *Service Worker*.
-- Dapat diinstal (A2HS) langsung dari *browser*.
-- Mekanisme *caching* statis untuk mempertahankan keandalan akses pada kondisi konektivitas jaringan yang tidak stabil.
+### 4. 🎮 Gamifikasi Metrik Pembelajaran
+- **Time-to-EXP Formula**: Menangkap `joinedAt` dan `leftAt` di dalam *database* saat peserta bergabung ke sesi video. Total durasi (*minutes*) langsung dikonversi menjadi *Experience Points*.
+- Integrasi asinkron untuk perhitungan *Leveling* dan pemberian *Achievement Badges*.
 
 ---
 
-## 🛠️ Arsitektur & Teknologi
+## 📐 System Architecture
 
-Repositori ini mengadopsi pola arsitektur **Monorepo-style separation** (Backend dan Frontend terpisah secara modular).
+Arsitektur aplikasi menggunakan *Client-Server Model* terpisah (*Decoupled*).
 
-### Frontend (Client-Side)
-- **Framework**: `React v19` berbasis `Vite` (Sangat optimal untuk *Fast Refresh*).
-- **Language**: `TypeScript` (*Strict Mode* aktif).
-- **Styling**: `Tailwind CSS v4` terkonfigurasi kustom dengan palet warna premium dan efek *glassmorphism*.
-- **State Management**: `@tanstack/react-query` untuk *data fetching*, sinkronisasi, dan manajemen *cache* API.
-- **Routing**: `react-router-dom` v7.
-
-### Backend (Server-Side)
-- **Runtime**: `Node.js` dengan `Express.js`.
-- **Language**: `TypeScript` dengan *Object-Oriented Controller-Service-Repository pattern*.
-- **Database ORM**: `Prisma Client` (Manajemen migrasi deklaratif berbasis `schema.prisma`).
-- **Database Engine**: `PostgreSQL` (Relasional dengan *foreign key constraints* yang ketat).
-- **Security**: Autentikasi JWT (JSON Web Tokens) tersimpan dalam *HttpOnly Cookies*, *Bcrypt* *hashing*, dan CORS terkonfigurasi.
-- **Media Storage**: Integrasi API `Cloudinary` untuk penyimpanan *cloud* gambar/dokumen.
+```mermaid
+graph TD;
+    Client["📱 Client (React PWA)"] <-->|REST API + JWT| Gateway["🛡️ API Gateway (Express)"];
+    Client <-->|WebSocket| Socket["⚡ Socket.io Server"];
+    
+    Gateway --> Auth["Auth Service"];
+    Gateway --> Match["Match & AI Service"];
+    Gateway --> Session["Session Service"];
+    
+    Socket --> Chat["Chat Event Emitter"];
+    Socket --> Notif["Notification Emitter"];
+    
+    Auth --> Prisma["🗄️ Prisma ORM"];
+    Match --> Prisma;
+    Session --> Prisma;
+    
+    Prisma --> DB[("🐘 PostgreSQL Database")];
+    Client -->|Video Stream| Jitsi["🎥 Jitsi Meet Servers"];
+```
 
 ---
 
-## 🚀 Panduan Instalasi Lokal (Developer Setup)
+## 🗄️ Database Schema
 
-Berikut adalah tata cara menjalankan **StudyCircle** di lingkungan pengembangan lokal (*development environment*).
+Skema dirancang sangat ternormalisasi di dalam PostgreSQL. (Sederhana dari `schema.prisma`):
 
-### Prasyarat (*Prerequisites*)
-Pastikan mesin Anda telah menginstal utilitas berikut:
-- **Node.js** (v18.x LTS atau lebih baru)
-- **Git** (CLI)
-- Akses ke server **PostgreSQL** lokal maupun *cloud* (seperti Neon/Supabase).
-- Akun **Cloudinary** (Untuk kredensial penyimpanan gambar).
+```mermaid
+erDiagram
+    User ||--o{ Member : has
+    User ||--o{ Session : creates
+    User ||--o{ Attendance : has
+    StudyGroup ||--o{ Member : contains
+    StudyGroup ||--o{ Session : hosts
+    Session ||--o{ Attendance : tracks
+    User {
+        uuid id PK
+        string email
+        string password
+        string timezone
+        string learningStyle
+        int exp
+    }
+    StudyGroup {
+        uuid id PK
+        string name
+        string subject
+        int maxCapacity
+    }
+    Session {
+        uuid id PK
+        timestamp startTime
+        timestamp endTime
+        string status
+    }
+```
 
-### Langkah 1: Kloning Repositori
+---
+
+## 📂 Struktur Direktori (Monorepo)
+
+```text
+StudyCircle/
+├── backend/                  # Server Node.js
+│   ├── prisma/               # Skema DB & Migrasi
+│   ├── src/
+│   │   ├── config/           # Konfigurasi DB & ENV
+│   │   ├── middleware/       # JWT Auth & Error Handling
+│   │   ├── modules/          # Domain-Driven Design (Auth, Match, Session)
+│   │   └── socket/           # Real-time Event Handlers
+│   └── package.json
+└── frontend/                 # Client React Vite
+    ├── public/               # Static assets & PWA Manifest
+    ├── src/
+    │   ├── api/              # Axios Interceptors & Endpoint Calls
+    │   ├── components/       # Reusable UI Components (Tailwind)
+    │   ├── context/          # React Context (AuthContext)
+    │   ├── hooks/            # Tanstack React Query Hooks
+    │   ├── pages/            # Page Views (Landing, Dashboard, dll)
+    │   └── router/           # React Router DOM (Protected Routes)
+    ├── index.html
+    └── tailwind.config.ts    # Desain Token (Warna, Font, Utilities)
+```
+
+---
+
+## 🌐 REST API Endpoints
+
+Semua koneksi diamankan dengan *Bearer Token* di *header*. (Contoh beberapa jalur utama):
+
+| Endpoint | Method | Parameter | Deskripsi |
+| :--- | :---: | :--- | :--- |
+| `/api/v1/auth/register` | `POST` | `email`, `password`, `name` | Mendaftarkan pengguna baru (Bcrypt hashed) |
+| `/api/v1/match/groups/recommendations` | `GET` | - | Eksekusi **Algoritma AI Heuristic Matching** |
+| `/api/v1/sessions/optimal-schedule` | `POST`| `groupId` | Eksekusi **AI Optimal Time Scheduling** |
+| `/api/v1/sessions/:id/join` | `POST` | - | Mengubah *state* `Attendance` (Memicu Video Call) |
+| `/api/v1/notifications` | `GET` | - | Menarik histori notifikasi pengguna |
+
+---
+
+## 🚀 Panduan Instalasi Lokal
+
+### Prasyarat (*Requirements*)
+- **Node.js** (v18+)
+- **PostgreSQL** lokal atau *Cloud* (Neon.tech / Supabase).
+
+### 1. Kloning Repositori
 ```bash
 git clone https://github.com/ShinZeleo/StudyCircle.git
 cd StudyCircle
 ```
 
-### Langkah 2: Konfigurasi Backend
+### 2. Memulai Backend (Server API)
 ```bash
 cd backend
-
-# Instalasi dependensi
 npm install
 
-# Buat berkas environment
+# Konfigurasi Variabel Lingkungan
 cp .env.example .env
-```
-👉 Buka berkas `.env` dan konfigurasikan parameter berikut:
-- `DATABASE_URL` = (URI koneksi PostgreSQL Anda)
-- `JWT_SECRET` = (String acak rahasia untuk enkripsi token)
-- `CLOUDINARY_*` = (Kredensial API dari *dashboard* Cloudinary)
-- `FRONTEND_URL` = `http://localhost:5173`
+# Edit .env: Masukkan DATABASE_URL dan JWT_SECRET
 
-```bash
-# Lakukan sinkronisasi skema database
+# Bangun skema Database
 npx prisma db push
 
-# (Opsional) Injeksi data dummy untuk keperluan testing
-npx prisma db seed
-
-# Jalankan server API di mode development
+# Menjalankan server (Port 3000)
 npm run dev
 ```
-> Server API akan berjalan pada `http://localhost:3000`.
 
-### Langkah 3: Konfigurasi Frontend
-Buka *tab* terminal baru, lalu navigasi ke direktori frontend:
+### 3. Memulai Frontend (React PWA)
+Buka terminal/CMD baru:
 ```bash
 cd frontend
-
-# Instalasi dependensi frontend
 npm install
 
-# Sesuaikan endpoint API (Bila diperlukan)
+# Konfigurasi Endpoint
 cp .env.example .env
-```
-👉 Pastikan `.env` memiliki `VITE_API_URL=http://localhost:3000/api/v1`
+# Pastikan VITE_API_URL menunjuk ke http://localhost:3000/api/v1
 
-```bash
-# Eksekusi server Vite
+# Menjalankan Vite Development Server (Port 5173)
 npm run dev
 ```
-> Aplikasi Client akan dapat diakses secara lokal pada `http://localhost:5173`.
+Buka browser di `http://localhost:5173` 🎉
 
 ---
 
-## 🗃️ Konvensi Kode (*Code Conventions*)
-- Penggunaan prinsip **KISS** (Keep It Simple, Stupid) dan **DRY** (Don't Repeat Yourself).
-- **Commit Message**: Mengikuti spesifikasi *Conventional Commits* (contoh: `feat: add AI matching module`, `fix: resolve JWT parsing error`).
+## 🧪 Testing & Deployment
+
+- **Linting**: Menjalankan analisis statik dengan `npm run lint` untuk memastikan konvensi kode TypeScript.
+- **Frontend Build**: Aplikasi klien dibangun (`npm run build`) menjadi file HTML/JS/CSS murni untuk didistribusikan secara statik (Vercel/Netlify).
+- **Backend Deployment**: Backend dirancang sedemikian rupa agar bersifat *stateless* sehingga siap di-*deploy* ke *container* (Docker) atau layanan *PaaS* (Render, Railway).
 
 ---
 
 <div align="center">
-  <p>Didesain secara khusus untuk <b>Universitas Hasanuddin</b> <br />
+  <br />
+  <p>Didesain dan dikembangkan secara eksklusif untuk <b>Universitas Hasanuddin</b> <br />
   &copy; {new Date().getFullYear()} Tim Kelompok 4 - Pemrograman Web Lanjutan.</p>
 </div>
