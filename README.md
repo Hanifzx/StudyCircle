@@ -1,127 +1,164 @@
 <div align="center">
-  <img src="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/brain-circuit.svg" alt="StudySync Logo" width="120" height="120" />
+  <img src="https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/brain-circuit.svg" alt="StudyCircle Logo" width="120" height="120" />
   
-  # StudySync 🎓✨
+  # StudyCircle 🎓✨
 
   **Platform Koordinasi Study Group dengan AI Schedule Optimizer**
 
   [![React](https://img.shields.io/badge/React-19.0+-61DAFB?logo=react&logoColor=black)](#)
+  [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?logo=typescript&logoColor=white)](#)
   [![Vite](https://img.shields.io/badge/Vite-PWA_Ready-646CFF?logo=vite&logoColor=white)](#)
-  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-Modern_UI-38B2AC?logo=tailwind-css&logoColor=white)](#)
+  [![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-v4.0-38B2AC?logo=tailwind-css&logoColor=white)](#)
   [![Node.js](https://img.shields.io/badge/Node.js-Express-339933?logo=nodedotjs&logoColor=white)](#)
   [![Prisma](https://img.shields.io/badge/Prisma-ORM-2D3748?logo=prisma&logoColor=white)](#)
+  [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Database-4169E1?logo=postgresql&logoColor=white)](#)
   [![Socket.io](https://img.shields.io/badge/Socket.io-Realtime-010101?logo=socketdotio&logoColor=white)](#)
+  
+  <br />
+  <i>Tugas Mata Kuliah Pemrograman Web Lanjutan</i>
 </div>
 
 <br />
 
-> **StudySync** adalah platform inovatif yang dirancang untuk mengatasi masalah umum mahasiswa: *kesulitan dalam berkoordinasi untuk membentuk kelompok belajar dan menentukan jadwal diskusi*. Dengan pendekatan modern dan algoritma heuristik kecerdasan buatan, platform ini memberikan solusi *end-to-end* mulai dari pencarian kelompok, optimalisasi jadwal pertemuan, hingga penyediaan ruang diskusi virtual.
+> **StudyCircle** adalah platform kolaborasi edukatif berskala *enterprise* yang dirancang untuk mengatasi hambatan koordinasi mahasiswa dalam membentuk kelompok belajar. Memanfaatkan arsitektur *event-driven* (*real-time*) dan algoritma *heuristic scoring* (AI), platform ini menyediakan ekosistem terpadu (*end-to-end*)—mulai dari pencocokan grup cerdas, optimalisasi jadwal pertemuan multi-zona waktu, hingga ruang rapat virtual terintegrasi.
 
 ---
 
 ## 👥 Tim Pengembang (Kelompok 4)
 
-Proyek ini dikembangkan oleh mahasiswa sebagai bagian dari tugas mata kuliah Pemrograman Web Lanjutan:
+Proyek ini dirancang dan dikembangkan dengan standar industri oleh:
 
-| Nama | NIM | Peran |
+| Nama | NIM | Tanggung Jawab Utama |
 | :--- | :--- | :--- |
-| **Muh. Hanif Nurmahdin** | `H071241033` | Fullstack Engineer & AI Integrator |
-| **Imam Dzaqhoir** | `H071241048` | Frontend Developer & UI/UX Designer |
-| **Haris** | `H071241070` | Backend Developer & Database Architect |
+| **Muh. Hanif Nurmahdin** | `H071241033` | *Fullstack Engineer & AI Integrator* - Merancang algoritma *heuristic matching* dan arsitektur *backend*. |
+| **Imam Dzaqhoir** | `H071241048` | *Frontend Developer & UI/UX Designer* - Mengembangkan antarmuka *glassmorphism* modern dan responsif. |
+| **Haris** | `H071241070` | *Backend Developer & Database Architect* - Mendesain skema basis data relasional (Prisma) dan optimasi *query*. |
 
 ---
 
-## ✨ Fitur Unggulan
+## ✨ Fitur Unggulan (Core Features)
 
-### 🤖 AI-Powered Matching & Schedule Optimizer
-Tidak ada lagi perdebatan menentukan jadwal atau kelompok.
-- **Smart Group Matching**: Algoritma heuristik otomatis merekomendasikan grup belajar yang paling cocok berdasarkan *Learning Style* (gaya belajar) dan kecocokan *Timezone* (zona waktu) pengguna.
-- **AI Schedule Optimizer**: Sistem penjadwalan cerdas yang menganalisis irisan ketersediaan anggota untuk mengusulkan waktu diskusi terbaik secara instan.
+### 🤖 1. AI-Powered Matching & Schedule Optimizer
+Pendekatan algoritmik untuk menyelesaikan konflik penjadwalan komunal.
+- **Smart Group Recommendation**: Menggunakan *weighted heuristic scoring* untuk merekomendasikan grup belajar berdasarkan kompatibilitas **Gaya Belajar (Learning Style)** dan **Zona Waktu (Timezone)**, memaksimalkan probabilitas keaktifan grup.
+- **AI Schedule Optimizer**: Menganalisis kalender historis anggota grup, irisan ketersediaan, dan preferensi zona waktu untuk mengkalkulasi dan menyarankan slot waktu diskusi paling optimal secara asinkron.
 
-### 🎥 Terintegrasi Virtual Room (Jitsi Meet)
-Koordinasi tanpa berpindah aplikasi.
-- Saat sesi belajar dimulai, pengguna dapat bergabung ke dalam **Virtual Room** dengan satu klik.
-- *Video call* terintegrasi secara mulus di dalam aplikasi tanpa perlu membagikan tautan eksternal seperti Zoom atau Google Meet.
+### 🎥 2. Terintegrasi Virtual Room (Jitsi WebRTC)
+Kolaborasi *real-time* *frictionless* tanpa dependensi aplikasi luar.
+- Ruang rapat (*video call* / *screen sharing*) dimuat langsung ke dalam sesi aplikasi menggunakan **Jitsi React SDK**.
+- Pembuatan token kamar (*room hash*) yang aman secara otomatis berdasarkan entitas `Session ID`, mencegah penyusup (*unauthorized entry*).
 
-### 🎮 Sistem Gamifikasi (Learn & Earn)
-Tingkatkan motivasi belajar dengan elemen permainan.
-- Dapatkan **Experience Points (EXP)** untuk setiap menit Anda berpartisipasi dalam diskusi.
-- Naikkan **Level** Anda dan kumpulkan berbagai **Badges** eksklusif.
-- Bersaing secara sehat dengan teman-teman di halaman **Leaderboard** global.
+### 🎮 3. Sistem Gamifikasi (Learn & Earn)
+Membangun metrik *retention* pengguna melalui sistem *reward*.
+- **EXP & Leveling Engine**: Menghitung waktu partisipasi sesi pengguna dan mengonversinya menjadi *Experience Points*.
+- **Global Leaderboard**: Agregasi metrik performa (*study hours*, *attendance rate*) untuk menampilkan peringkat kompetitif.
 
-### ⚡ Real-Time Collaboration
-Tetap terhubung tanpa hambatan.
-- **Live Group Chat**: Diskusi langsung dengan anggota grup tanpa perlu memuat ulang halaman (*powered by Socket.io*).
-- **Push Notifications**: Dapatkan pemberitahuan *real-time* (*in-app bell notification*) seketika saat ada jadwal baru dibuat, undangan ke grup belajar, atau grup terbentuk.
+### ⚡ 4. Real-Time Event Architecture (Socket.io)
+Sistem notifikasi latensi rendah dengan koneksi *WebSocket* persisten.
+- **Live Group Chat**: Pesan dikirimkan secara instan (*bi-directional*) di dalam masing-masing ruang lingkup *study group*.
+- **In-App Push Notifications**: Notifikasi proaktif setiap kali terdapat aktivitas krusial (jadwal baru, undangan, perubahan status sesi).
 
-### 📱 Progressive Web App (PWA) Offline-Ready
-Akses kapan saja, di mana saja.
-- Instal langsung ke layar beranda HP atau Desktop Anda (seperti aplikasi *native*).
-- Caching materi cerdas yang memungkinkan akses data ringan secara mulus meskipun Anda sedang *offline*.
-
----
-
-## 🛠️ Tech Stack & Arsitektur
-
-Platform ini dibangun menggunakan teknologi *full-stack* modern berskala industri:
-
-| Bagian | Teknologi | Deskripsi |
-| --- | --- | --- |
-| **Frontend** | React 19, TypeScript, Vite | UI yang sangat responsif, *fast refresh*, dan *strongly typed*. |
-| **Styling** | Tailwind CSS v4 | Desain *premium dark-mode*, *glassmorphism*, dan animasi transisi. |
-| **Backend** | Node.js, Express.js | Arsitektur RESTful API yang ringan dan terukur. |
-| **Database** | PostgreSQL, Prisma ORM | Relasi data yang kompleks dengan migrasi otomatis. |
-| **Realtime** | Socket.io | Arsitektur *event-driven* dua arah untuk pesan dan notifikasi. |
-| **Integrations**| Jitsi React SDK, Cloudinary | Komunikasi video dan penyimpanan aset media berbasis *cloud*. |
+### 📱 5. Progressive Web App (PWA) & Offline-Ready
+Pengalaman setara aplikasi *native* dengan manajemen *Service Worker*.
+- Dapat diinstal (A2HS) langsung dari *browser*.
+- Mekanisme *caching* statis untuk mempertahankan keandalan akses pada kondisi konektivitas jaringan yang tidak stabil.
 
 ---
 
-## 🚀 Cara Menjalankan Secara Lokal
+## 🛠️ Arsitektur & Teknologi
 
-Ikuti langkah-langkah di bawah ini untuk menjalankan **StudySync** di mesin lokal Anda.
+Repositori ini mengadopsi pola arsitektur **Monorepo-style separation** (Backend dan Frontend terpisah secara modular).
 
-### Persyaratan Sistem
-- [Node.js](https://nodejs.org/) (v18 atau lebih baru disarankan)
-- [PostgreSQL](https://www.postgresql.org/) (berjalan lokal atau di awan, misal: Supabase/Neon)
+### Frontend (Client-Side)
+- **Framework**: `React v19` berbasis `Vite` (Sangat optimal untuk *Fast Refresh*).
+- **Language**: `TypeScript` (*Strict Mode* aktif).
+- **Styling**: `Tailwind CSS v4` terkonfigurasi kustom dengan palet warna premium dan efek *glassmorphism*.
+- **State Management**: `@tanstack/react-query` untuk *data fetching*, sinkronisasi, dan manajemen *cache* API.
+- **Routing**: `react-router-dom` v7.
 
-### 1. Kloning Repositori
+### Backend (Server-Side)
+- **Runtime**: `Node.js` dengan `Express.js`.
+- **Language**: `TypeScript` dengan *Object-Oriented Controller-Service-Repository pattern*.
+- **Database ORM**: `Prisma Client` (Manajemen migrasi deklaratif berbasis `schema.prisma`).
+- **Database Engine**: `PostgreSQL` (Relasional dengan *foreign key constraints* yang ketat).
+- **Security**: Autentikasi JWT (JSON Web Tokens) tersimpan dalam *HttpOnly Cookies*, *Bcrypt* *hashing*, dan CORS terkonfigurasi.
+- **Media Storage**: Integrasi API `Cloudinary` untuk penyimpanan *cloud* gambar/dokumen.
+
+---
+
+## 🚀 Panduan Instalasi Lokal (Developer Setup)
+
+Berikut adalah tata cara menjalankan **StudyCircle** di lingkungan pengembangan lokal (*development environment*).
+
+### Prasyarat (*Prerequisites*)
+Pastikan mesin Anda telah menginstal utilitas berikut:
+- **Node.js** (v18.x LTS atau lebih baru)
+- **Git** (CLI)
+- Akses ke server **PostgreSQL** lokal maupun *cloud* (seperti Neon/Supabase).
+- Akun **Cloudinary** (Untuk kredensial penyimpanan gambar).
+
+### Langkah 1: Kloning Repositori
 ```bash
 git clone https://github.com/ShinZeleo/StudyCircle.git
 cd StudyCircle
 ```
 
-### 2. Pengaturan Backend
+### Langkah 2: Konfigurasi Backend
 ```bash
 cd backend
+
+# Instalasi dependensi
 npm install
 
-# Buat file .env dan sesuaikan konfigurasi Anda
+# Buat berkas environment
 cp .env.example .env
+```
+👉 Buka berkas `.env` dan konfigurasikan parameter berikut:
+- `DATABASE_URL` = (URI koneksi PostgreSQL Anda)
+- `JWT_SECRET` = (String acak rahasia untuk enkripsi token)
+- `CLOUDINARY_*` = (Kredensial API dari *dashboard* Cloudinary)
+- `FRONTEND_URL` = `http://localhost:5173`
 
-# Jalankan migrasi Prisma untuk membangun skema database
+```bash
+# Lakukan sinkronisasi skema database
 npx prisma db push
 
-# (Opsional) Isi database dengan data sampel
+# (Opsional) Injeksi data dummy untuk keperluan testing
 npx prisma db seed
 
-# Jalankan server (Mode Development)
+# Jalankan server API di mode development
 npm run dev
 ```
+> Server API akan berjalan pada `http://localhost:3000`.
 
-### 3. Pengaturan Frontend
-Buka terminal baru:
+### Langkah 3: Konfigurasi Frontend
+Buka *tab* terminal baru, lalu navigasi ke direktori frontend:
 ```bash
 cd frontend
+
+# Instalasi dependensi frontend
 npm install
 
-# Jalankan server frontend
+# Sesuaikan endpoint API (Bila diperlukan)
+cp .env.example .env
+```
+👉 Pastikan `.env` memiliki `VITE_API_URL=http://localhost:3000/api/v1`
+
+```bash
+# Eksekusi server Vite
 npm run dev
 ```
-Kunjungi `http://localhost:5173` untuk melihat hasilnya!
+> Aplikasi Client akan dapat diakses secara lokal pada `http://localhost:5173`.
+
+---
+
+## 🗃️ Konvensi Kode (*Code Conventions*)
+- Penggunaan prinsip **KISS** (Keep It Simple, Stupid) dan **DRY** (Don't Repeat Yourself).
+- **Commit Message**: Mengikuti spesifikasi *Conventional Commits* (contoh: `feat: add AI matching module`, `fix: resolve JWT parsing error`).
 
 ---
 
 <div align="center">
-  <p>Dibuat dengan 💻 dan ☕ untuk meningkatkan kualitas pendidikan. <br />
-  &copy; StudySync Team (Kelompok 4). Hak Cipta Dilindungi.</p>
+  <p>Didesain secara khusus untuk <b>Universitas Hasanuddin</b> <br />
+  &copy; {new Date().getFullYear()} Tim Kelompok 4 - Pemrograman Web Lanjutan.</p>
 </div>
