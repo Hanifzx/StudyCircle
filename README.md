@@ -30,8 +30,8 @@ Proyek ini dirancang dan dikembangkan dengan standar industri oleh:
 
 | Nama | NIM | Tanggung Jawab Utama |
 | :--- | :--- | :--- |
-| **Muh. Hanif Nurmahdin** | `H071241033` | *Fullstack Engineer & AI Integrator* - Merancang algoritma *heuristic matching* dan arsitektur *backend*. |
-| **Imam Dzaqhoir** | `H071241048` | *Frontend Developer & UI/UX Designer* - Mengembangkan antarmuka *glassmorphism* modern dan responsif. |
+| **Imam Dzaqhoir** | `H071241048` | *Fullstack Engineer & AI Integrator* - Merancang algoritma *heuristic matching* dan arsitektur *backend*. |
+| **Muh. Hanif Nurmahdin** | `H071241033` | *Frontend Developer & UI/UX Designer* - Mengembangkan antarmuka *glassmorphism* modern dan responsif. |
 | **Haris** | `H071241070` | *Backend Developer & Database Architect* - Mendesain skema basis data relasional (Prisma) dan optimasi *query*. |
 
 ---
