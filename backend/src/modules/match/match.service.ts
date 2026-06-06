@@ -13,7 +13,13 @@ export class MatchService {
       throw new Error('User not found');
     }
 
-    const whereClause: any = {};
+    const whereClause: any = {
+      members: {
+        none: {
+          userId: userId
+        }
+      }
+    };
     if (subjectId) {
       whereClause.subjectId = subjectId;
     }

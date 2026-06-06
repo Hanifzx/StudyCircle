@@ -117,8 +117,12 @@ export class MaterialsController {
       const materialId = req.params.materialId as string;
       const userId = req.user!.userId;
 
-      const downloadPath = await this.service.getMaterialDownloadPath(userId, materialId);
-      res.download(downloadPath);
+      const downloadPathOrUrl = await this.service.getMaterialDownloadPath(userId, materialId);
+      if (downloadPathOrUrl.startsWith('http://') || downloadPathOrUrl.startsWith('https://')) {
+        res.redirect(downloadPathOrUrl);
+      } else {
+        res.download(downloadPathOrUrl);
+      }
     } catch (error: any) {
       // Return 403 or 404 for security depending on if they are a member, but our service throws Error
       res.status(400).json({ error: error.message });

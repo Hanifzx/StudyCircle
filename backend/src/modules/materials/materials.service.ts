@@ -88,9 +88,13 @@ export class MaterialsService {
 
     await this.requireMember(material.studyGroupId, userId);
 
+    // Support remote URLs (Cloudinary)
+    if (material.fileUrl.startsWith('http://') || material.fileUrl.startsWith('https://')) {
+      return material.fileUrl;
+    }
+
     const basePath = path.join(process.cwd(), 'uploads', 'materials');
-    // Ensure we construct the absolute path properly from fileUrl (which might contain uploads/materials already depending on saving logic, or might just be the relative string).
-    // In our upload Material, fileUrl is stored relative to project root.
+    // Ensure we construct the absolute path properly from fileUrl
     const requestedPath = path.resolve(process.cwd(), material.fileUrl);
 
     if (!requestedPath.startsWith(basePath)) {
