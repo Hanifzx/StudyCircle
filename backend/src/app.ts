@@ -5,6 +5,7 @@ import cookieParser from 'cookie-parser';
 import rateLimit from 'express-rate-limit';
 import { env } from './config/env';
 import { errorHandler } from './middleware/error.middleware';
+import { setupSwagger } from './config/swagger';
 
 const app = express();
 
@@ -56,6 +57,8 @@ app.use('/api/v1/subjects', subjectsRoutes);
 app.use('/api/v1/admin', adminRoutes);
 app.use('/api/v1/notifications', notificationsRouter);
 app.use('/api/v1/match', matchRoutes);
+// Swagger UI Documentation
+setupSwagger(app);
 
 // Global Error Handler
 app.use(errorHandler);

@@ -2,14 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Navbar } from './Navbar';
-import { CreateGroupModal } from '../features/groups/CreateGroupModal';
 import { socketService } from '../../utils/socket';
 import { useAuth } from '../../hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 
 export const AppLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [showCreateModal, setShowCreateModal] = useState(false);
   const [notification, setNotification] = useState<{ message: string; visible: boolean } | null>(null);
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -38,14 +36,7 @@ export const AppLayout: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-transparent">
-      <Sidebar 
-        isOpen={sidebarOpen} 
-        onClose={handleSidebarClose} 
-        onCreateGroupClick={() => {
-          setShowCreateModal(true);
-          setSidebarOpen(false);
-        }}
-      />
+      <Sidebar isOpen={sidebarOpen} onClose={handleSidebarClose} />
       <Navbar onMenuToggle={handleMenuToggle} />
 
       {/* Main content area – offset for fixed sidebar (lg+) and navbar */}
@@ -54,12 +45,6 @@ export const AppLayout: React.FC = () => {
           <Outlet />
         </div>
       </main>
-
-      <CreateGroupModal
-        isOpen={showCreateModal}
-        onClose={() => setShowCreateModal(false)}
-        onCreated={() => {}}
-      />
 
       {/* Simple Toast Notification */}
       {notification?.visible && (

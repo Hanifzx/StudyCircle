@@ -62,13 +62,7 @@ export class AdminController {
         return;
       }
 
-      // Perform cascading deletion manually in a transaction for relations without onDelete: Cascade
-      await prisma.$transaction([
-        prisma.material.deleteMany({ where: { uploadedBy: id } }),
-        prisma.session.deleteMany({ where: { createdBy: id } }),
-        prisma.studyGroup.deleteMany({ where: { createdBy: id } }),
-        prisma.user.delete({ where: { id } }),
-      ]);
+      await prisma.user.delete({ where: { id } });
       res.status(200).json({ success: true, message: 'User deleted successfully' });
     } catch (error) {
       next(error);
