@@ -196,7 +196,7 @@ cp .env.example .env
 # Bangun skema Database
 npx prisma db push
 
-# Menjalankan server (Port 3000)
+# Menjalankan server (Port 5000)
 npm run dev
 ```
 
@@ -208,7 +208,7 @@ npm install
 
 # Konfigurasi Endpoint
 cp .env.example .env
-# Pastikan VITE_API_URL menunjuk ke http://localhost:3000/api/v1
+# Pastikan VITE_API_URL menunjuk ke http://localhost:5000/api/v1
 
 # Menjalankan Vite Development Server (Port 5173)
 npm run dev
