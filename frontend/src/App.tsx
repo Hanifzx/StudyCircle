@@ -3,6 +3,7 @@ import { AuthProvider } from './context/AuthContext';
 import { AppRouter } from './router/AppRouter';
 import { ReloadPrompt } from './components/common/ReloadPrompt';
 import { GooeyToaster } from 'goey-toast';
+import '@aejkatappaja/phantom-ui';
 import 'goey-toast/styles.css';
 
 function App() {

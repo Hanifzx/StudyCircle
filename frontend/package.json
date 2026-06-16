@@ -11,6 +11,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@aejkatappaja/phantom-ui": "^1.3.0",
     "@hookform/resolvers": "^5.4.0",
     "@jitsi/react-sdk": "^1.4.4",
     "@tanstack/react-query": "^5.100.14",
