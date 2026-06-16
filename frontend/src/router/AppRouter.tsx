@@ -3,6 +3,7 @@ import { LoginPage } from '../pages/LoginPage';
 import { RegisterPage } from '../pages/RegisterPage';
 import { DashboardPage } from '../pages/DashboardPage';
 import { GroupsPage } from '../pages/GroupsPage';
+import { MyGroupsPage } from '../pages/MyGroupsPage';
 import { GroupDetailPage } from '../pages/GroupDetailPage';
 import { SessionDetailPage } from '../pages/SessionDetailPage';
 import { ProgressPage } from '../pages/ProgressPage';
@@ -46,6 +47,7 @@ export function AppRouter() {
         <Route element={<ProtectedRoute />}>
           <Route element={<AppLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/my-groups" element={<MyGroupsPage />} />
             <Route path="/sessions/:sessionId" element={<SessionDetailPage />} />
             <Route path="/progress" element={<ProgressPage />} />
             <Route path="/profile" element={<ProfilePage />} />
