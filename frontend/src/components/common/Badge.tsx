@@ -1,6 +1,6 @@
 import React from "react";
 
-type BadgeVariant = "success" | "warning" | "danger" | "info" | "default" | "solid-warning" | "outline-warning";
+type BadgeVariant = "success" | "warning" | "danger" | "info" | "default" | "solid-warning" | "outline-warning" | "primary";
 
 interface BadgeProps {
   variant?: BadgeVariant;
@@ -16,6 +16,7 @@ const variantStyles: Record<BadgeVariant, string> = {
   default: "bg-gray-500/15 text-gray-400 ring-gray-500/20",
   "solid-warning": "bg-yellow-400 text-black ring-yellow-400",
   "outline-warning": "bg-transparent text-yellow-400 ring-yellow-400",
+  primary: "bg-primary-500/20 text-primary-400 ring-primary-500/30",
 };
 
 export const Badge: React.FC<BadgeProps> = ({
