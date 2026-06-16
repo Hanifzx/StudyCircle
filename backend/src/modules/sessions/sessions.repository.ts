@@ -12,6 +12,24 @@ export class SessionsRepository {
       where: { id: sessionId },
       include: {
         studyGroup: true,
+        creator: {
+          select: {
+            id: true,
+            fullName: true,
+            email: true,
+          }
+        },
+        attendances: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                fullName: true,
+                email: true,
+              }
+            }
+          }
+        }
       }
     });
   }
@@ -20,6 +38,9 @@ export class SessionsRepository {
     return prisma.session.findMany({
       where: { studyGroupId: groupId },
       orderBy: { scheduledStartTime: 'asc' },
+      include: {
+        attendances: true,
+      }
     });
   }
 
