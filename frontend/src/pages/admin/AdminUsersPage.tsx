@@ -3,13 +3,13 @@ import { adminApi } from '../../api/admin.api';
 import { Trash2, UserCog, Shield } from 'lucide-react';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
+import { gooeyToast } from 'goey-toast';
 
 
 export function AdminUsersPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<{id: string, name: string} | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const fetchUsers = async () => {
     try {
@@ -32,13 +32,13 @@ export function AdminUsersPage() {
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     try {
-      setDeleteError(null);
       await adminApi.deleteUser(deleteTarget.id);
       setUsers(users.filter(u => u.id !== deleteTarget.id));
       setDeleteTarget(null);
+      gooeyToast.success('Pengguna berhasil dihapus');
     } catch (error: any) {
       setDeleteTarget(null);
-      setDeleteError(error.response?.data?.message || 'Failed to delete user');
+      gooeyToast.error(error.response?.data?.message || 'Failed to delete user');
     }
   };
 
@@ -58,12 +58,6 @@ export function AdminUsersPage() {
           Total: {users.length}
         </div>
       </div>
-
-      {deleteError && (
-        <div role="alert" className="text-sm text-red-400 bg-red-500/10 px-4 py-3 rounded-lg">
-          {deleteError}
-        </div>
-      )}
 
       <div className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">

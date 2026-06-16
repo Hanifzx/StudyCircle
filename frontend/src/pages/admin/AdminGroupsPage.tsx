@@ -3,12 +3,12 @@ import { adminApi } from '../../api/admin.api';
 import { Trash2, Users } from 'lucide-react';
 import { LoadingSpinner } from '../../components/common/LoadingSpinner';
 import { ConfirmDialog } from '../../components/common/ConfirmDialog';
+import { gooeyToast } from 'goey-toast';
 
 export function AdminGroupsPage() {
   const [groups, setGroups] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [deleteTarget, setDeleteTarget] = useState<{id: string, name: string} | null>(null);
-  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const fetchGroups = async () => {
     try {
@@ -31,13 +31,13 @@ export function AdminGroupsPage() {
   const confirmDelete = async () => {
     if (!deleteTarget) return;
     try {
-      setDeleteError(null);
       await adminApi.deleteGroup(deleteTarget.id);
       setGroups(groups.filter(g => g.id !== deleteTarget.id));
       setDeleteTarget(null);
+      gooeyToast.success('Grup berhasil dihapus');
     } catch (error: any) {
       setDeleteTarget(null);
-      setDeleteError(error.response?.data?.message || 'Failed to delete group');
+      gooeyToast.error(error.response?.data?.message || 'Failed to delete group');
     }
   };
 
@@ -53,12 +53,6 @@ export function AdminGroupsPage() {
           <p className="text-gray-400 mt-1">View and manage study groups.</p>
         </div>
       </div>
-
-      {deleteError && (
-        <div role="alert" className="text-sm text-red-400 bg-red-500/10 px-4 py-3 rounded-lg">
-          {deleteError}
-        </div>
-      )}
 
       <div className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden">
         <div className="overflow-x-auto">
