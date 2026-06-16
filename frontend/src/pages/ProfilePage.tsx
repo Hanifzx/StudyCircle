@@ -46,7 +46,7 @@ export function ProfilePage() {
   const handleUpdateLearningStyle = async (style: string) => {
     try {
       setError(null);
-      await updateLearningStyleMutation.mutateAsync({ learningStyle: style });
+      await updateLearningStyleMutation.mutateAsync({ primaryStyle: style });
     } catch (err: any) {
       setError(err.response?.data?.error || 'Failed to update learning style');
     }
@@ -224,7 +224,7 @@ export function ProfilePage() {
               key={style}
               size="sm"
               variant={profile?.learningStyle?.primaryStyle === style ? 'primary' : 'secondary'}
-              loading={updateLearningStyleMutation.isPending && updateLearningStyleMutation.variables?.learningStyle === style}
+              loading={updateLearningStyleMutation.isPending && updateLearningStyleMutation.variables?.primaryStyle === style}
               onClick={() => handleUpdateLearningStyle(style)}
               aria-pressed={profile?.learningStyle?.primaryStyle === style}
             >

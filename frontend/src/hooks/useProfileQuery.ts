@@ -24,7 +24,7 @@ export function useUpdateLearningStyleMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { learningStyle: string }) => usersApi.updateLearningStyle(data),
+    mutationFn: (data: { primaryStyle: string }) => usersApi.updateLearningStyle(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userProfile'] });
     },

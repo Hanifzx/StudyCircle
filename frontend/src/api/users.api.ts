@@ -11,7 +11,7 @@ export const usersApi = {
     return response.data;
   },
 
-  updateLearningStyle: async (data: { learningStyle: string }) => {
+  updateLearningStyle: async (data: { primaryStyle: string }) => {
     const response = await axiosInstance.put('/users/learning-style', data);
     return response.data;
   },
