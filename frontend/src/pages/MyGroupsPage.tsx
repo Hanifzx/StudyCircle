@@ -38,12 +38,19 @@ export function MyGroupsPage() {
     return groups.filter(isMember);
   }, [groups, user]);
 
-  if (isLoading) {
-    return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
-  }
+  const displayGroups = isLoading 
+    ? Array.from({ length: 8 }).map((_, i) => ({
+        id: `dummy-${i}`,
+        name: 'Nama Kelompok Placeholder',
+        description: 'Deskripsi kelompok belajar yang sengaja dibuat cukup panjang agar phantom-ui dapat mengukur dimensinya.',
+        maxMembers: 10,
+        _count: { members: 0 },
+      }))
+    : myGroups;
 
   return (
-    <div className="space-y-6 animate-fade-in-up">
+    <phantom-ui fallback-radius="16" loading={isLoading}>
+      <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -57,7 +64,7 @@ export function MyGroupsPage() {
       </div>
 
       {/* Groups Grid */}
-      {myGroups.length === 0 ? (
+      {!isLoading && myGroups.length === 0 ? (
         <EmptyState
           icon={<Users className="w-12 h-12" />}
           title="Belum ada grup"
@@ -72,9 +79,9 @@ export function MyGroupsPage() {
       ) : (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {myGroups.map((group) => {
-              const admin = group.createdBy === user?.id;
-              const member = group.members?.some((m: any) => m.userId === user?.id);
+            {displayGroups.map((group) => {
+              const admin = group.createdBy === user?.id || false;
+              const member = group.members?.some((m: any) => m.userId === user?.id) || false;
               return (
                 <GroupCard
                   key={group.id}
@@ -103,5 +110,6 @@ export function MyGroupsPage() {
         </div>
       )}
     </div>
+    </phantom-ui>
   );
 }

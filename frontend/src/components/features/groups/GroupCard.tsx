@@ -21,7 +21,7 @@ export function GroupCard({ group, isMember, isAdmin, onJoin, onClick }: GroupCa
   return (
     <Card hoverable onClick={onClick} className="p-5 flex flex-col h-full group relative overflow-hidden">
       {/* Decorative gradient blob */}
-      <div className="absolute -right-10 -top-10 w-32 h-32 bg-primary-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
+      <div data-shimmer-ignore className="absolute -right-10 -top-10 w-32 h-32 bg-primary-500/20 rounded-full blur-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none" />
       
       {/* Header */}
       <div className="flex items-start justify-between gap-3 mb-4 relative z-10">

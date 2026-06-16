@@ -55,13 +55,24 @@ export function DashboardPage() {
     return result;
   }, [groups, activeTab]);
 
-  if (isLoading) {
-    return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
-  }
-
   // Identify "My Groups" based on membership
   const myGroups = groups.filter(g => g.members?.some((m: any) => m.userId === user?.id));
-  const upcomingSessionGroup = myGroups[0] || groups[0]; // mock upcoming session
+  const upcomingSessionGroup = isLoading ? {
+    id: 'dummy',
+    name: 'Nama Sesi Belajar Placeholder',
+    maxMembers: 10,
+    _count: { members: 0 },
+  } : (myGroups[0] || groups[0]);
+
+  const displayGroups = isLoading 
+    ? Array.from({ length: 6 }).map((_, i) => ({
+        id: `dummy-${i}`,
+        name: 'Nama Kelompok Placeholder',
+        description: 'Deskripsi kelompok belajar yang sengaja dibuat cukup panjang agar phantom-ui dapat mengukur dimensinya.',
+        maxMembers: 10,
+        _count: { members: 0 },
+      }))
+    : filteredGroups;
 
   return (
     <div className="space-y-10 pb-12 animate-fade-in-up">
@@ -79,10 +90,11 @@ export function DashboardPage() {
       <section aria-label="Sesi terdekat">
         <h2 className="text-xl font-bold text-white mb-4">Sesi Terdekat</h2>
         {upcomingSessionGroup ? (
-          <div className="glass-panel rounded-3xl p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden group hover:shadow-[0_8px_32px_0_rgba(203,166,247,0.2)] transition-shadow duration-500">
-            {/* Holographic background elements */}
-            <div className="absolute right-0 top-0 w-[500px] h-[500px] bg-primary-500/10 rounded-full blur-[80px] translate-x-1/3 -translate-y-1/3 pointer-events-none group-hover:bg-primary-500/20 transition-colors duration-700" />
-            <div className="absolute left-0 bottom-0 w-64 h-64 bg-secondary-500/10 rounded-full blur-[60px] -translate-x-1/2 translate-y-1/2 pointer-events-none group-hover:bg-secondary-500/20 transition-colors duration-700" />
+          <phantom-ui fallback-radius="16" loading={isLoading}>
+            <div className="glass-panel rounded-3xl p-8 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden group hover:shadow-[0_8px_32px_0_rgba(203,166,247,0.2)] transition-shadow duration-500">
+              {/* Holographic background elements */}
+              <div data-shimmer-ignore className="absolute right-0 top-0 w-[500px] h-[500px] bg-primary-500/10 rounded-full blur-[80px] translate-x-1/3 -translate-y-1/3 pointer-events-none group-hover:bg-primary-500/20 transition-colors duration-700" />
+              <div data-shimmer-ignore className="absolute left-0 bottom-0 w-64 h-64 bg-secondary-500/10 rounded-full blur-[60px] -translate-x-1/2 translate-y-1/2 pointer-events-none group-hover:bg-secondary-500/20 transition-colors duration-700" />
             
             <div className="flex items-start gap-5 z-10">
               <div className="w-16 h-16 rounded-2xl bg-white/5 flex items-center justify-center shrink-0 border border-white/10 group-hover:border-primary-500/30 transition-colors duration-500">
@@ -103,6 +115,7 @@ export function DashboardPage() {
               Masuk Sesi <ArrowRight className="w-4 h-4 ml-1" />
             </Button>
           </div>
+          </phantom-ui>
         ) : (
           <EmptyState
             title="Tidak ada sesi terdekat"
@@ -134,16 +147,17 @@ export function DashboardPage() {
           className="mb-6"
         />
 
-        {filteredGroups.length === 0 ? (
+        {!isLoading && filteredGroups.length === 0 ? (
           <EmptyState
             title="Grup tidak ditemukan"
             description="Coba cari dengan kata kunci lain atau pilih kategori yang berbeda."
           />
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
-            {filteredGroups.map((group) => {
-              const isMember = group.members?.some((m: any) => m.userId === user?.id);
-              const isAdmin = group.createdBy === user?.id;
+          <phantom-ui fallback-radius="16" loading={isLoading}>
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
+              {displayGroups.map((group) => {
+              const isMember = group.members?.some((m: any) => m.userId === user?.id) || false;
+              const isAdmin = group.createdBy === user?.id || false;
               return (
                 <GroupCard
                   key={group.id}
@@ -163,7 +177,8 @@ export function DashboardPage() {
                 />
               );
             })}
-          </div>
+            </div>
+          </phantom-ui>
         )}
       </section>
     </div>

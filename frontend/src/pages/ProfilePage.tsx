@@ -14,7 +14,19 @@ const LEARNING_STYLES = ['Visual', 'Auditory', 'Reading/Writing', 'Kinesthetic']
 export function ProfilePage() {
   const { user } = useAuth();
 
-  const { data: profile, isLoading, error: profileError } = useProfileQuery();
+  const { data, isLoading, error: profileError } = useProfileQuery();
+  
+  const profile = data || (isLoading ? {
+    fullName: 'Nama Pengguna Placeholder',
+    bio: 'Deskripsi singkat profil pengguna yang cukup panjang agar phantom ui dapat menggambar rangka blok dengan ukuran yang proporsional.',
+    timezone: 'Asia/Jakarta',
+    username: 'username_placeholder',
+    email: 'email@placeholder.com',
+    semester: 4,
+    level: 1,
+    points: 100,
+    learningStyle: { primaryStyle: 'Visual' }
+  } : null);
   const updateProfileMutation = useUpdateProfileMutation();
   const updateLearningStyleMutation = useUpdateLearningStyleMutation();
 
@@ -52,9 +64,6 @@ export function ProfilePage() {
     }
   };
 
-  if (isLoading) {
-    return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
-  }
 
   if (profileError && !profile) {
     return (
@@ -72,7 +81,8 @@ export function ProfilePage() {
     .slice(0, 2);
 
   return (
-    <div className="max-w-2xl mx-auto space-y-6 animate-fade-in-up">
+    <phantom-ui fallback-radius="16" loading={isLoading}>
+      <div className="max-w-2xl mx-auto space-y-6 animate-fade-in-up">
       <h1 className="text-2xl font-bold text-white">Profile</h1>
 
       {/* Avatar & Info Card */}
@@ -235,5 +245,6 @@ export function ProfilePage() {
       </Card>
 
     </div>
+    </phantom-ui>
   );
 }

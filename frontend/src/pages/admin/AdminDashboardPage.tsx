@@ -21,15 +21,18 @@ export function AdminDashboardPage() {
     fetchStats();
   }, []);
 
-  if (loading) {
-    return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
-  }
+  const displayStats = stats || (loading ? {
+    users: 120,
+    groups: 15,
+    sessions: 45,
+    materials: 80
+  } : null);
 
   const statCards = [
-    { label: 'Total Users', value: stats?.users || 0, icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
-    { label: 'Study Groups', value: stats?.groups || 0, icon: FolderKanban, color: 'text-green-400', bg: 'bg-green-500/10' },
-    { label: 'Total Sessions', value: stats?.sessions || 0, icon: Calendar, color: 'text-purple-400', bg: 'bg-purple-500/10' },
-    { label: 'Materials', value: stats?.materials || 0, icon: FileText, color: 'text-orange-400', bg: 'bg-orange-500/10' },
+    { label: 'Total Users', value: displayStats?.users || 0, icon: Users, color: 'text-blue-400', bg: 'bg-blue-500/10' },
+    { label: 'Study Groups', value: displayStats?.groups || 0, icon: FolderKanban, color: 'text-green-400', bg: 'bg-green-500/10' },
+    { label: 'Total Sessions', value: displayStats?.sessions || 0, icon: Calendar, color: 'text-purple-400', bg: 'bg-purple-500/10' },
+    { label: 'Materials', value: displayStats?.materials || 0, icon: FileText, color: 'text-orange-400', bg: 'bg-orange-500/10' },
   ];
 
   return (
@@ -39,21 +42,23 @@ export function AdminDashboardPage() {
         <p className="text-gray-400 mt-1">Platform statistics and metrics at a glance.</p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <phantom-ui fallback-radius="16" loading={loading}>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat, i) => (
           <div key={i} className="bg-white/5 border border-white/5 rounded-2xl p-6" aria-label={stat.label}>
             <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-gray-400">{stat.label}</p>
-                <h3 className="text-3xl font-bold text-white mt-2">{stat.value}</h3>
+              <div className="flex flex-col gap-1.5">
+                <p className="text-sm font-medium text-gray-400 leading-none">{stat.label}</p>
+                <h3 className="text-3xl font-bold text-white leading-none">{stat.value}</h3>
               </div>
-              <div className={`p-3 rounded-xl ${stat.bg}`}>
+              <div className={`p-3 rounded-xl ${stat.bg}`} data-shimmer-ignore>
                 <stat.icon className={`w-6 h-6 ${stat.color}`} />
               </div>
             </div>
           </div>
         ))}
-      </div>
+        </div>
+      </phantom-ui>
     </div>
   );
 }

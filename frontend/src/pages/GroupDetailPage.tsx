@@ -70,8 +70,17 @@ export function GroupDetailPage() {
   const removeMemberMutation = useRemoveMemberMutation();
   const deleteMaterialMutation = useDeleteMaterialMutation();
 
-  const group = groupDetail?.data;
-  const members = membersDetail?.data || [];
+  const loading = detailLoading || membersLoading;
+
+  const group = groupDetail?.data || (loading ? {
+    id: 'dummy',
+    name: 'Nama Grup Placeholder',
+    description: 'Deskripsi grup ini cukup panjang agar phantom UI dapat memuat skeleton yang akurat.',
+    maxMembers: 10,
+    subject: { name: 'Mata Kuliah' }
+  } : null);
+
+  const members = membersDetail?.data || (loading ? Array.from({ length: 4 }).map((_, i) => ({ userId: `dummy-${i}` })) : []);
   const sessions = sessionsDetail?.data || [];
 
   const materials = useMemo(() => {
@@ -196,16 +205,19 @@ export function GroupDetailPage() {
     }
   };
 
-  const loading = detailLoading || membersLoading;
-
-  if (loading) {
-    return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
-  }
-
   if (!group) return null;
 
+  const displaySessions = sessionsLoading 
+    ? Array.from({ length: 2 }).map((_, i) => ({ id: `dummy-session-${i}`, title: 'Sesi Diskusi Placeholder', description: 'Deskripsi', startTime: new Date().toISOString(), endTime: new Date().toISOString(), meetingLink: '', groupId: '' }))
+    : sessions;
+
+  const displayMaterials = materialsLoading
+    ? Array.from({ length: 3 }).map((_, i) => ({ id: `dummy-material-${i}`, title: 'Materi Belajar', fileUrl: '', fileName: 'file.pdf', uploaderId: '', createdAt: new Date().toISOString() }))
+    : materials;
+
   return (
-    <div className="space-y-6 animate-fade-in-up">
+    <phantom-ui fallback-radius="16" loading={loading}>
+      <div className="space-y-6 animate-fade-in-up">
       {/* Back button */}
       <button
         onClick={() => navigate('/groups')}
@@ -325,24 +337,24 @@ export function GroupDetailPage() {
                     </Button>
                   </div>
                 )}
-                {sessionsLoading ? (
-                  <LoadingSpinner className="py-12" />
-                ) : sessions.length === 0 ? (
+                {sessionsLoading || sessions.length > 0 ? (
+                  <phantom-ui fallback-radius="16" loading={sessionsLoading}>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                      {displaySessions.map((session: any) => (
+                        <SessionCard
+                          key={session.id}
+                          session={session}
+                          onClick={() => navigate(`/sessions/${session.id}`)}
+                        />
+                      ))}
+                    </div>
+                  </phantom-ui>
+                ) : (
                   <EmptyState
                     icon={<Calendar className="w-10 h-10" />}
                     title="Belum ada sesi diskusi"
                     description="Jadwalkan sesi belajar pertama untuk grup ini."
                   />
-                ) : (
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                    {sessions.map((session: any) => (
-                      <SessionCard
-                        key={session.id}
-                        session={session}
-                        onClick={() => navigate(`/sessions/${session.id}`)}
-                      />
-                    ))}
-                  </div>
                 )}
               </>
             )}
@@ -381,39 +393,39 @@ export function GroupDetailPage() {
                     Unggah Materi
                   </Button>
                 </div>
-                {materialsLoading ? (
-                  <LoadingSpinner className="py-12" />
-                ) : materials.length === 0 ? (
+                {materialsLoading || materials.length > 0 ? (
+                  <phantom-ui fallback-radius="16" loading={materialsLoading}>
+                    <div className="space-y-4">
+                      {displayMaterials.map((material: any) => (
+                        <MaterialCard
+                          key={material.id}
+                          material={material}
+                          canDelete={isAdmin || material.uploaderId === user?.id}
+                          onDownload={() => downloadMaterial(material.id)}
+                          onDelete={() => setMaterialToDelete(material.id)}
+                        />
+                      ))}
+
+                      {/* Load More Materials */}
+                      {hasNextMaterialsPage && (
+                        <div className="flex justify-center pt-4">
+                          <Button
+                            variant="secondary"
+                            onClick={() => fetchNextMaterialsPage()}
+                            disabled={isFetchingNextMaterialsPage}
+                            loading={isFetchingNextMaterialsPage}
+                          >
+                            Muat Lebih Banyak Materi
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  </phantom-ui>
+                ) : (
                   <EmptyState
                     title="Belum ada materi"
                     description="Unggah materi belajar untuk grup ini."
                   />
-                ) : (
-                  <div className="space-y-4">
-                    {materials.map((material) => (
-                      <MaterialCard
-                        key={material.id}
-                        material={material}
-                        canDelete={isAdmin || material.uploaderId === user?.id}
-                        onDownload={() => downloadMaterial(material.id)}
-                        onDelete={() => setMaterialToDelete(material.id)}
-                      />
-                    ))}
-
-                    {/* Load More Materials */}
-                    {hasNextMaterialsPage && (
-                      <div className="flex justify-center pt-4">
-                        <Button
-                          variant="secondary"
-                          onClick={() => fetchNextMaterialsPage()}
-                          disabled={isFetchingNextMaterialsPage}
-                          loading={isFetchingNextMaterialsPage}
-                        >
-                          Muat Lebih Banyak Materi
-                        </Button>
-                      </div>
-                    )}
-                  </div>
                 )}
               </>
             )}
@@ -465,5 +477,6 @@ export function GroupDetailPage() {
         onCancel={() => setMaterialToDelete(null)}
       />
     </div>
+    </phantom-ui>
   );
 }

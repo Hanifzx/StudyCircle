@@ -36,7 +36,19 @@ export function SessionDetailPage() {
   const [showVideoCall, setShowVideoCall] = useState(false);
 
   // Queries
-  const { data: session, isLoading, error: sessionError } = useSessionDetailsQuery(sessionId);
+  const { data, isLoading, error: sessionError } = useSessionDetailsQuery(sessionId);
+
+  const session = data || (isLoading ? {
+    id: 'dummy',
+    title: 'Judul Sesi Diskusi Placeholder',
+    description: 'Deskripsi sesi diskusi yang cukup panjang agar phantom-ui dapat menampilkan baris-baris bayangan yang rapi.',
+    status: 'scheduled',
+    scheduledStartTime: new Date().toISOString(),
+    scheduledEndTime: new Date().toISOString(),
+    creator: { fullName: 'Nama Kreator' },
+    studyGroup: { name: 'Nama Grup' },
+    attendances: Array.from({length: 3}).map((_, i) => ({ id: `dummy-att-${i}`, user: { fullName: 'Nama Peserta Placeholder' }, status: 'active', joinedAt: new Date().toISOString() }))
+  } : null);
 
   // Mutations
   const joinSessionMutation = useJoinSessionMutation();
@@ -104,9 +116,7 @@ export function SessionDetailPage() {
     }
   };
 
-  if (isLoading) {
-    return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
-  }
+
 
   if (sessionError && !session) {
     return (
@@ -120,7 +130,8 @@ export function SessionDetailPage() {
   if (!session) return null;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 animate-fade-in-up">
+    <phantom-ui fallback-radius="16" loading={isLoading}>
+      <div className="max-w-3xl mx-auto space-y-6 animate-fade-in-up">
       {/* Back button */}
       <button
         onClick={() => navigate(-1)}
@@ -251,7 +262,7 @@ export function SessionDetailPage() {
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm text-left">
-              <thead>
+              <thead data-shimmer-ignore>
                 <tr className="border-b border-gray-700/50">
                   <th scope="col" className="py-2.5 px-4 text-xs font-medium text-gray-400 uppercase tracking-wider">
                     Name
@@ -322,5 +333,6 @@ export function SessionDetailPage() {
         onCancel={() => setShowDeleteDialog(false)}
       />
     </div>
+    </phantom-ui>
   );
 }

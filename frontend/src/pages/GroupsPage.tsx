@@ -90,10 +90,6 @@ export function GroupsPage() {
     }
   };
 
-  if (isLoading) {
-    return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
-  }
-
   return (
     <div className="space-y-6 animate-fade-in-up">
       {/* Header */}
@@ -130,15 +126,36 @@ export function GroupsPage() {
       </div>
 
       {/* Groups Grid */}
-      {filteredGroups.length === 0 ? (
-        <EmptyState
-          icon={<Users className="w-12 h-12" />}
-          title={searchQuery ? 'Grup tidak ditemukan' : 'Belum ada grup'}
-          description={
-            searchQuery
-              ? 'Coba gunakan kata kunci pencarian yang lain.'
-              : 'Jadilah yang pertama membuat grup belajar!'
-          }
+      <phantom-ui fallback-radius="16" loading={isLoading}>
+        {isLoading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
+            {Array.from({ length: 8 }).map((_, i) => (
+              <GroupCard
+                key={i}
+                group={{
+                  id: `dummy-${i}`,
+                  name: 'Nama Kelompok Placeholder',
+                  description: 'Deskripsi kelompok belajar yang sengaja dibuat cukup panjang agar phantom-ui dapat mengukur dimensinya dengan akurat menjadi dua atau tiga baris teks.',
+                  tags: ['Placeholder', 'Topik'],
+                  maxMembers: 10,
+                  _count: { members: 0 },
+                }}
+                isMember={false}
+                isAdmin={false}
+                onJoin={() => {}}
+                onClick={() => {}}
+              />
+            ))}
+          </div>
+        ) : filteredGroups.length === 0 ? (
+          <EmptyState
+            icon={<Users className="w-12 h-12" />}
+            title={searchQuery ? 'Grup tidak ditemukan' : 'Belum ada grup'}
+            description={
+              searchQuery
+                ? 'Coba gunakan kata kunci pencarian yang lain.'
+                : 'Jadilah yang pertama membuat grup belajar!'
+            }
           action={
             !searchQuery && user ? (
               <Button onClick={() => setShowCreateModal(true)}>
@@ -166,21 +183,22 @@ export function GroupsPage() {
             })}
           </div>
 
-          {/* Load More Button */}
-          {hasNextPage && (
-            <div className="flex justify-center mt-6">
-              <Button
-                variant="secondary"
-                onClick={() => fetchNextPage()}
-                disabled={isFetchingNextPage}
-                loading={isFetchingNextPage}
-              >
-                Muat Lebih Banyak
-              </Button>
-            </div>
-          )}
-        </div>
-      )}
+            {/* Load More Button */}
+            {hasNextPage && (
+              <div className="flex justify-center mt-6">
+                <Button
+                  variant="secondary"
+                  onClick={() => fetchNextPage()}
+                  disabled={isFetchingNextPage}
+                  loading={isFetchingNextPage}
+                >
+                  Muat Lebih Banyak
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
+      </phantom-ui>
 
       {/* Create Group Modal */}
       <CreateGroupModal

@@ -6,15 +6,29 @@ import { SummaryStats } from '../components/features/progress/SummaryStats';
 import { ProgressCard } from '../components/features/progress/ProgressCard';
 
 export function ProgressPage() {
-  const { data: progress = [], isLoading: progressLoading, error: progressError } = useUserProgressQuery();
-  const { data: summary, isLoading: summaryLoading, error: summaryError } = useProgressSummaryQuery();
+  const { data: progressData, isLoading: progressLoading, error: progressError } = useUserProgressQuery();
+  const { data: summaryData, isLoading: summaryLoading, error: summaryError } = useProgressSummaryQuery();
 
   const loading = progressLoading || summaryLoading;
   const error = progressError || summaryError;
 
-  if (loading) {
-    return <LoadingSpinner size="lg" className="min-h-[60vh]" />;
-  }
+  const summary = summaryData || (loading ? {
+    subjectsTracked: 5,
+    totalStudyHours: 120,
+    completedSessions: 50,
+    advancedSubjects: 1,
+    intermediateSubjects: 2,
+    beginnerSubjects: 2
+  } : null);
+
+  const progress = (progressData && progressData.length > 0) ? progressData : (loading ? Array.from({length: 3}).map((_, i) => ({
+    id: `dummy-${i}`,
+    subjectName: 'Mata Kuliah Placeholder',
+    masteryLevel: 'intermediate',
+    totalStudyHours: 40,
+    sessionsAttended: 15,
+    lastStudiedAt: new Date().toISOString()
+  })) : []);
 
   if (error) {
     return (
@@ -25,7 +39,8 @@ export function ProgressPage() {
   }
 
   return (
-    <div className="space-y-8 animate-fade-in-up">
+    <phantom-ui fallback-radius="16" loading={loading}>
+      <div className="space-y-8 animate-fade-in-up">
       <h1 className="text-2xl font-bold text-white">Learning Progress</h1>
 
       {/* Summary */}
@@ -46,5 +61,6 @@ export function ProgressPage() {
         </div>
       )}
     </div>
+    </phantom-ui>
   );
 }
