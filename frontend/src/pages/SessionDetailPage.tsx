@@ -188,7 +188,7 @@ export function SessionDetailPage() {
               </Button>
             )}
             {hasActiveAttendance && !showVideoCall && (
-              <Button variant="info" onClick={() => setShowVideoCall(true)}>
+              <Button variant="primary" onClick={() => setShowVideoCall(true)} className="shadow-[0_0_15px_rgba(203,166,247,0.3)]">
                 <Video className="w-4 h-4 mr-2" />
                 Join Virtual Room
               </Button>
