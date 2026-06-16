@@ -154,11 +154,13 @@ export function DashboardPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5">
             {filteredGroups.map((group) => {
               const isMember = group.members?.some((m: any) => m.userId === user?.id);
+              const isAdmin = group.createdBy === user?.id;
               return (
                 <GroupCard
                   key={group.id}
                   group={group}
                   isMember={isMember}
+                  isAdmin={isAdmin}
                   onJoin={async () => {
                     try {
                       setJoinError(null);

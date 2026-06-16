@@ -163,15 +163,19 @@ export function GroupsPage() {
       ) : (
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
-            {filteredGroups.map((group) => (
-              <GroupCard
-                key={group.id}
-                group={group}
-                isMember={isMember(group)}
-                onJoin={() => handleJoin(group.id)}
-                onClick={() => navigate(`/groups/${group.id}`)}
-              />
-            ))}
+            {filteredGroups.map((group) => {
+              const admin = group.createdBy === user?.id;
+              return (
+                <GroupCard
+                  key={group.id}
+                  group={group}
+                  isMember={isMember(group)}
+                  isAdmin={admin}
+                  onJoin={() => handleJoin(group.id)}
+                  onClick={() => navigate(`/groups/${group.id}`)}
+                />
+              );
+            })}
           </div>
 
           {/* Load More Button */}

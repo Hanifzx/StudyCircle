@@ -7,11 +7,12 @@ import type { Group } from '../../../types';
 interface GroupCardProps {
   group: Group;
   isMember?: boolean;
+  isAdmin?: boolean;
   onJoin?: () => void;
   onClick: () => void;
 }
 
-export function GroupCard({ group, isMember, onJoin, onClick }: GroupCardProps) {
+export function GroupCard({ group, isMember, isAdmin, onJoin, onClick }: GroupCardProps) {
   const memberCount = group._count?.members ?? 0;
   const maxMembers = group.maxMembers;
   const isFull = memberCount >= maxMembers;
@@ -28,8 +29,10 @@ export function GroupCard({ group, isMember, onJoin, onClick }: GroupCardProps) 
           <BookOpen className="w-5 h-5 text-gray-300 group-hover:text-primary-400 transition-colors" />
         </div>
         
-        {isMember ? (
-          <Badge variant="success">Grup Saya</Badge>
+        {isAdmin ? (
+          <Badge variant="primary" className="shadow-[0_0_10px_rgba(203,166,247,0.3)]">Admin</Badge>
+        ) : isMember ? (
+          <Badge variant="success">Member</Badge>
         ) : isFull ? (
           <Badge variant="danger">Penuh</Badge>
         ) : (
@@ -72,14 +75,14 @@ export function GroupCard({ group, isMember, onJoin, onClick }: GroupCardProps) 
           className="w-full text-xs"
           onClick={(e) => {
             e.stopPropagation();
-            if (isMember || isFull) {
+            if (isMember || isAdmin || isFull) {
               onClick();
             } else if (onJoin) {
               onJoin();
             }
           }}
         >
-          {isMember ? 'Lihat Detail' : isFull ? 'Grup Penuh' : 'Bergabung'}
+          {isAdmin || isMember ? 'Lihat Detail' : isFull ? 'Grup Penuh' : 'Bergabung'}
         </Button>
       </div>
     </Card>
