@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Search, ArrowRight } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { useDebounce } from '../hooks/useDebounce';
 import { useGroupsInfiniteQuery, useJoinGroupMutation } from '../hooks/useGroupsQuery';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { EmptyState } from '../components/common/EmptyState';
@@ -18,10 +19,11 @@ export function DashboardPage() {
 
   const [activeTab, setActiveTab] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [joinError, setJoinError] = useState<string | null>(null);
 
   // Fetch groups using React Query
-  const { data, isLoading } = useGroupsInfiniteQuery({ search: searchQuery, limit: 6 });
+  const { data, isLoading } = useGroupsInfiniteQuery({ search: debouncedSearchQuery, limit: 6 });
   const joinMutation = useJoinGroupMutation();
 
   const groups = useMemo(() => data?.pages.flatMap((page) => page.data) ?? [], [data]);

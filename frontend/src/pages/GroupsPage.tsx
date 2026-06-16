@@ -2,6 +2,7 @@ import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Users } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
+import { useDebounce } from '../hooks/useDebounce';
 import { useGroupsInfiniteQuery, useJoinGroupMutation, useRecommendationsQuery } from '../hooks/useGroupsQuery';
 import { LoadingSpinner } from '../components/common/LoadingSpinner';
 import { EmptyState } from '../components/common/EmptyState';
@@ -16,6 +17,7 @@ export function GroupsPage() {
   const { user } = useAuth();
 
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearchQuery = useDebounce(searchQuery, 300);
   const [activeTab, setActiveTab] = useState('all');
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [joinError, setJoinError] = useState<string | null>(null);
@@ -27,7 +29,7 @@ export function GroupsPage() {
     hasNextPage,
     isFetchingNextPage,
     isLoading,
-  } = useGroupsInfiniteQuery({ search: searchQuery, limit: 12 });
+  } = useGroupsInfiniteQuery({ search: debouncedSearchQuery, limit: 12 });
 
   const joinMutation = useJoinGroupMutation();
 
