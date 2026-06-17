@@ -2,6 +2,7 @@ import { Server as SocketIOServer } from 'socket.io';
 import { Server as HttpServer } from 'http';
 import { logger } from './utils/logger';
 import { prisma } from './config/database';
+import { env } from './config/env';
 
 class SocketService {
   private io: SocketIOServer | null = null;
@@ -9,7 +10,7 @@ class SocketService {
   initialize(httpServer: HttpServer) {
     this.io = new SocketIOServer(httpServer, {
       cors: {
-        origin: 'http://localhost:5173',
+        origin: env.FRONTEND_URL,
         credentials: true,
       },
     });

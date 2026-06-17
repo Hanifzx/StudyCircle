@@ -13,7 +13,7 @@ setupSwagger(app);
 // Security Middleware
 app.use(helmet());
 app.use(cors({
-  origin: 'http://localhost:5173', // Ensure frontend origin is allowed for credentials
+  origin: env.FRONTEND_URL, // Ensure frontend origin is allowed for credentials
   credentials: true,
 }));
 
