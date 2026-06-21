@@ -140,9 +140,13 @@ export function GroupChat({ groupId }: GroupChatProps) {
           placeholder="Ketik pesan..."
           className="flex-1 bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-700 rounded-full px-4 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500 dark:text-white"
         />
-        <Button type="submit" disabled={!newMessage.trim()} className="rounded-full w-10 h-10 p-0 flex items-center justify-center">
+        <button
+          type="submit"
+          disabled={!newMessage.trim()}
+          className="rounded-full w-10 h-10 bg-gradient-to-r from-[#B88CB2] to-[#8FAFEA] text-white flex items-center justify-center transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(184,140,178,0.4)] hover:shadow-[0_0_20px_rgba(143,175,234,0.5)] active:scale-95"
+        >
           <Send className="h-4 w-4" />
-        </Button>
+        </button>
       </form>
     </div>
   );
