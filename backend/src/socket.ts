@@ -45,10 +45,35 @@ class SocketService {
               user: {
                 select: { id: true, fullName: true, role: true, level: true },
               },
+              studyGroup: {
+                select: { name: true },
+              },
             },
           });
 
           this.io?.to(`group_${data.studyGroupId}`).emit('new_message', message);
+
+          // Get other members of this group to notify them
+          const groupMembers = await prisma.member.findMany({
+            where: {
+              studyGroupId: data.studyGroupId,
+              userId: { not: data.userId },
+            },
+            select: {
+              userId: true,
+            },
+          });
+
+          const senderName = message.user.fullName;
+          const groupName = message.studyGroup.name;
+
+          groupMembers.forEach((member) => {
+            this.io?.to(`user_${member.userId}`).emit('new_message_notification', {
+              senderName,
+              groupName,
+              studyGroupId: data.studyGroupId,
+            });
+          });
         } catch (error) {
           logger.error(`Socket message error: ${error}`);
         }

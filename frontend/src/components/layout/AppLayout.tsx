@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Navbar } from './Navbar';
 import { socketService } from '../../utils/socket';
 import { useAuth } from '../../hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
+import { gooeyToast } from 'goey-toast';
+import { Bell } from 'lucide-react';
 
 export const AppLayout: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [notification, setNotification] = useState<{ message: string; visible: boolean } | null>(null);
   const { user } = useAuth();
   const queryClient = useQueryClient();
+  const location = useLocation();
 
   const handleMenuToggle = () => setSidebarOpen((prev) => !prev);
   const handleSidebarClose = () => setSidebarOpen(false);
@@ -22,17 +24,29 @@ export const AppLayout: React.FC = () => {
     }
     
     socketService.onNotification((data: any) => {
-      setNotification({ message: data.message, visible: true });
+      gooeyToast.success(data.message);
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      setTimeout(() => {
-        setNotification((prev) => prev ? { ...prev, visible: false } : null);
-      }, 5000);
+    });
+
+    socketService.onNewMessageNotification((data: any) => {
+      // Determine if the user is currently on the group page of the message
+      const groupPathMatch = location.pathname.match(/\/groups\/([^/]+)/);
+      const currentGroupId = groupPathMatch ? groupPathMatch[1] : null;
+
+      // Only show notification toast if they are NOT viewing this group page
+      if (data.studyGroupId !== currentGroupId) {
+        gooeyToast.info(data.groupName, {
+          description: `Pesan baru dari ${data.senderName}`,
+          icon: <Bell className="w-5 h-5 text-blue-400" />,
+        });
+      }
     });
 
     return () => {
       socketService.offNotification();
+      socketService.offNewMessageNotification();
     };
-  }, [user, queryClient]);
+  }, [user, queryClient, location.pathname]);
 
   return (
     <div className="min-h-screen bg-transparent">
@@ -45,21 +59,6 @@ export const AppLayout: React.FC = () => {
           <Outlet />
         </div>
       </main>
-
-      {/* Simple Toast Notification */}
-      {notification?.visible && (
-        <div className="fixed bottom-4 right-4 z-50 bg-primary-600 text-white px-4 py-3 rounded-lg shadow-xl animate-in slide-in-from-bottom-5 fade-in">
-          <div className="flex items-center gap-2">
-            <span className="font-medium text-sm">{notification.message}</span>
-            <button 
-              onClick={() => setNotification(null)}
-              className="text-primary-200 hover:text-white"
-            >
-              ✕
-            </button>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

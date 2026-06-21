@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pencil, Trash2, LogOut, Users, BookOpen, Calendar, Plus } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { useGroupDetailQuery, useGroupMembersQuery, useLeaveGroupMutation, useRemoveMemberMutation } from '../hooks/useGroupsQuery';
+import { useGroupDetailQuery, useGroupMembersQuery, useLeaveGroupMutation, useRemoveMemberMutation, useJoinGroupMutation } from '../hooks/useGroupsQuery';
 import { useGroupSessionsQuery } from '../hooks/useSessionsQuery';
 import { useMaterialsInfiniteQuery, useDeleteMaterialMutation } from '../hooks/useMaterialsQuery';
 import { groupsApi } from '../api/groups.api';
@@ -66,9 +66,12 @@ export function GroupDetailPage() {
   } = useMaterialsInfiniteQuery(groupId, 10);
 
   // Mutations
+  const joinGroupMutation = useJoinGroupMutation();
   const leaveGroupMutation = useLeaveGroupMutation();
   const removeMemberMutation = useRemoveMemberMutation();
   const deleteMaterialMutation = useDeleteMaterialMutation();
+
+  const [joining, setJoining] = useState(false);
 
   const loading = detailLoading || membersLoading;
 
@@ -158,6 +161,18 @@ export function GroupDetailPage() {
       navigate('/groups', { replace: true });
     } catch (err: any) {
       gooeyToast.error(err.response?.data?.error || 'Gagal keluar dari grup');
+    }
+  };
+
+  const handleJoinGroup = async () => {
+    try {
+      setJoining(true);
+      await joinGroupMutation.mutateAsync(groupId);
+      gooeyToast.success('Berhasil bergabung dengan grup');
+    } catch (err: any) {
+      gooeyToast.error(err.response?.data?.error || 'Gagal bergabung dengan grup');
+    } finally {
+      setJoining(false);
     }
   };
 
@@ -306,6 +321,12 @@ export function GroupDetailPage() {
                     Keluar Grup
                   </Button>
                 )}
+                {user && !isMember && (
+                  <Button size="sm" onClick={handleJoinGroup} loading={joining}>
+                    <Plus className="w-4 h-4 mr-1.5" />
+                    Gabung Grup
+                  </Button>
+                )}
               </div>
             </div>
           </>
@@ -317,18 +338,30 @@ export function GroupDetailPage() {
 
       {/* Tab Content */}
       <div className="mt-6">
-        {/* Sessions Tab */}
-        {activeTab === 'sessions' && (
-          <div className="space-y-6">
-            {!user ? (
-              <EmptyState
-                icon={<LogOut className="w-12 h-12" />}
-                title="Login Diperlukan"
-                description="Anda harus login untuk melihat jadwal sesi diskusi grup ini."
-                action={<Button onClick={() => navigate('/login')}>Login untuk Bergabung</Button>}
-              />
-            ) : (
-              <>
+        {!user ? (
+          <EmptyState
+            icon={<LogOut className="w-12 h-12 text-gray-500" />}
+            title="Login Diperlukan"
+            description="Silakan masuk ke akun Anda terlebih dahulu untuk mengakses fitur grup ini."
+            action={<Button onClick={() => navigate('/login')}>Masuk ke Akun</Button>}
+          />
+        ) : !isMember ? (
+          <EmptyState
+            icon={<Users className="w-12 h-12 text-primary-400" />}
+            title="Gabung Grup Belajar"
+            description={`Bergabunglah dengan "${group.name}" untuk mengakses obrolan grup, sesi diskusi, materi belajar, dan berkolaborasi dengan anggota lainnya.`}
+            action={
+              <Button onClick={handleJoinGroup} loading={joining}>
+                <Plus className="w-4 h-4 mr-1.5" />
+                Gabung Grup Sekarang
+              </Button>
+            }
+          />
+        ) : (
+          <>
+            {/* Sessions Tab */}
+            {activeTab === 'sessions' && (
+              <div className="space-y-6">
                 {isAdmin && (
                   <div className="flex justify-end">
                     <Button size="sm" onClick={() => setShowCreateSession(true)}>
@@ -356,37 +389,17 @@ export function GroupDetailPage() {
                     description="Jadwalkan sesi belajar pertama untuk grup ini."
                   />
                 )}
-              </>
+              </div>
             )}
-          </div>
-        )}
 
-        {/* Chat Tab */}
-        {activeTab === 'chat' && groupId && (
-          !user ? (
-            <EmptyState
-              icon={<LogOut className="w-12 h-12" />}
-              title="Login Diperlukan"
-              description="Anda harus login untuk melihat dan mengirim pesan di grup ini."
-              action={<Button onClick={() => navigate('/login')}>Login untuk Bergabung</Button>}
-            />
-          ) : (
-            <GroupChat groupId={groupId} />
-          )
-        )}
+            {/* Chat Tab */}
+            {activeTab === 'chat' && groupId && (
+              <GroupChat groupId={groupId} />
+            )}
 
-        {/* Materials Tab */}
-        {activeTab === 'materials' && (
-          <div className="space-y-6">
-            {!user ? (
-              <EmptyState
-                icon={<LogOut className="w-12 h-12" />}
-                title="Login Diperlukan"
-                description="Anda harus login untuk melihat dan mengunduh materi grup ini."
-                action={<Button onClick={() => navigate('/login')}>Login untuk Bergabung</Button>}
-              />
-            ) : (
-              <>
+            {/* Materials Tab */}
+            {activeTab === 'materials' && (
+              <div className="space-y-6">
                 <div className="flex justify-end">
                   <Button size="sm" onClick={() => setShowUploadMaterial(true)}>
                     <Plus className="w-4 h-4 mr-1.5" />
@@ -427,19 +440,19 @@ export function GroupDetailPage() {
                     description="Unggah materi belajar untuk grup ini."
                   />
                 )}
-              </>
+              </div>
             )}
-          </div>
-        )}
 
-        {/* Members Tab */}
-        {activeTab === 'members' && (
-          <MemberList
-            members={members}
-            isAdmin={isAdmin}
-            currentUserId={user?.id ?? ''}
-            onRemove={handleRemoveMember}
-          />
+            {/* Members Tab */}
+            {activeTab === 'members' && (
+              <MemberList
+                members={members}
+                isAdmin={isAdmin}
+                currentUserId={user?.id ?? ''}
+                onRemove={handleRemoveMember}
+              />
+            )}
+          </>
         )}
       </div>
 

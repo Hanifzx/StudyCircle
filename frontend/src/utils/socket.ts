@@ -65,6 +65,14 @@ class SocketService {
   offNotification() {
     this.socket?.off('notification');
   }
+
+  onNewMessageNotification(callback: (data: any) => void) {
+    this.socket?.on('new_message_notification', callback);
+  }
+
+  offNewMessageNotification() {
+    this.socket?.off('new_message_notification');
+  }
 }
 
 export const socketService = new SocketService();
