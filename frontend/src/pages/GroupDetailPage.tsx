@@ -90,11 +90,11 @@ export function GroupDetailPage() {
 
   // Set form fields once data loads
   useEffect(() => {
-    if (group) {
-      setEditName(group.name);
-      setEditDesc(group.description ?? '');
+    if (groupDetail?.data) {
+      setEditName(groupDetail.data.name);
+      setEditDesc(groupDetail.data.description ?? '');
     }
-  }, [group]);
+  }, [groupDetail?.data]);
 
   // Handle Real-Time Notifications
   useEffect(() => {
@@ -111,6 +111,7 @@ export function GroupDetailPage() {
 
     return () => {
       socketService.getSocket()?.off('material_uploaded');
+      socketService.leaveGroup(groupId);
     };
   }, [groupId, queryClient]);
 
@@ -201,8 +202,9 @@ export function GroupDetailPage() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Download error', err);
+      gooeyToast.error(err.response?.data?.error || 'Gagal mengunduh materi. Silakan coba lagi.');
     }
   };
 
@@ -213,8 +215,9 @@ export function GroupDetailPage() {
       const url = window.URL.createObjectURL(blob);
       window.open(url, '_blank');
       setTimeout(() => window.URL.revokeObjectURL(url), 1000 * 60 * 5); // Revoke after 5 mins
-    } catch (err) {
+    } catch (err: any) {
       console.error('Preview error', err);
+      gooeyToast.error(err.response?.data?.error || 'Gagal membuka pratinjau materi. Silakan coba lagi.');
     }
   };
 

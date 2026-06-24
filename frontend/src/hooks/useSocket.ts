@@ -4,7 +4,6 @@
 import { useEffect, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { useAuth } from './useAuth';
-import { env } from '../config/env';
 
 export const useSocket = (groupId?: string) => {
   const { user } = useAuth();
@@ -14,7 +13,11 @@ export const useSocket = (groupId?: string) => {
     // Only connect if user is authenticated
     if (!user) return;
 
-    const socket = io(env.API_URL || 'http://localhost:5000', {
+    const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+    // Remove /api/v1 for socket.io connection
+    const socketUrl = apiUrl.replace('/api/v1', '');
+
+    const socket = io(socketUrl, {
       withCredentials: true,
     });
 

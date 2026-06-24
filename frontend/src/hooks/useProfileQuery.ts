@@ -15,7 +15,7 @@ export function useUpdateProfileMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (data: { name?: string; bio?: string; timezone?: string }) => usersApi.updateProfile(data),
+    mutationFn: (data: { fullName?: string; bio?: string; timezone?: string }) => usersApi.updateProfile(data),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['userProfile'] });
       queryClient.invalidateQueries({ queryKey: ['authUser'] }); // Syncs auth context if name changed

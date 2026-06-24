@@ -1,7 +1,6 @@
 // File repository untuk modul Sessions
-import { PrismaClient, Prisma, AttendanceStatus } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { Prisma, AttendanceStatus } from '@prisma/client';
+import { prisma } from '../../config/database';
 
 export class SessionsRepository {
   async createSession(data: Prisma.SessionCreateInput) {

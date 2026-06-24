@@ -39,16 +39,16 @@ export function ProfilePage() {
 
   // Sync edit state values when profile query loads
   useEffect(() => {
-    if (profile) {
-      setEditName(profile.fullName);
-      setEditBio(profile.bio ?? '');
-      setEditTimezone(profile.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone);
+    if (data) {
+      setEditName(data.fullName);
+      setEditBio(data.bio ?? '');
+      setEditTimezone(data.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone);
     }
-  }, [profile]);
+  }, [data]);
 
   const handleSaveProfile = async () => {
     try {
-      await updateProfileMutation.mutateAsync({ name: editName.trim(), bio: editBio.trim(), timezone: editTimezone });
+      await updateProfileMutation.mutateAsync({ fullName: editName.trim(), bio: editBio.trim(), timezone: editTimezone });
       setIsEditing(false);
       gooeyToast.success('Profil berhasil diperbarui');
     } catch (err: any) {
@@ -146,6 +146,7 @@ export function ProfilePage() {
                       setIsEditing(false);
                       setEditName(profile?.fullName ?? '');
                       setEditBio(profile?.bio ?? '');
+                      setEditTimezone(profile?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone);
                     }}
                   >
                     Cancel

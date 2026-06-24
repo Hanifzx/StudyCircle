@@ -113,18 +113,24 @@ export class MaterialsController {
     }
   };
 
-  downloadMaterial = async (req: Request, res: Response) => {
+  downloadMaterial = async (req: Request, res: Response): Promise<void> => {
     try {
       const materialId = req.params.materialId as string;
       const userId = req.user!.userId;
 
-      const downloadPath = await this.service.getMaterialDownloadPath(userId, materialId);
-      const filename = path.basename(downloadPath);
+      const { url, isExternal } = await this.service.getMaterialDownloadPath(userId, materialId);
+      
+      if (isExternal) {
+         res.redirect(url);
+         return;
+      }
+
+      const filename = path.basename(url);
       
       if (req.query.preview === 'true') {
-        res.sendFile(downloadPath, { dotfiles: 'allow' });
+        res.sendFile(url, { dotfiles: 'allow' });
       } else {
-        res.download(downloadPath, filename, { dotfiles: 'allow' });
+        res.download(url, filename, { dotfiles: 'allow' });
       }
     } catch (error: any) {
       // Return 403 or 404 for security depending on if they are a member, but our service throws Error

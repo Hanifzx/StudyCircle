@@ -76,22 +76,27 @@ export class MaterialsService {
     // Delete from database
     await this.repository.deleteMaterial(materialId);
 
-    // Delete physical file
-    const filePath = path.join(process.cwd(), material.fileUrl);
-    if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+    // Delete physical file if it's local
+    if (!material.fileUrl.startsWith('http://') && !material.fileUrl.startsWith('https://')) {
+      const filePath = path.join(process.cwd(), material.fileUrl);
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
     }
+    // Note: To delete from Cloudinary we'd need to extract public_id and call cloudinary.uploader.destroy
   }
 
-  async getMaterialDownloadPath(userId: string, materialId: string) {
+  async getMaterialDownloadPath(userId: string, materialId: string): Promise<{ url: string, isExternal: boolean }> {
     const material = await this.repository.findMaterialById(materialId);
     if (!material) throw new Error('Material not found');
 
     await this.requireMember(material.studyGroupId, userId);
 
+    if (material.fileUrl.startsWith('http://') || material.fileUrl.startsWith('https://')) {
+      return { url: material.fileUrl, isExternal: true };
+    }
+
     const basePath = path.join(process.cwd(), 'uploads', 'materials');
-    // Ensure we construct the absolute path properly from fileUrl (which might contain uploads/materials already depending on saving logic, or might just be the relative string).
-    // In our upload Material, fileUrl is stored relative to project root.
     const requestedPath = path.resolve(process.cwd(), material.fileUrl);
 
     if (!requestedPath.startsWith(basePath)) {
@@ -102,7 +107,7 @@ export class MaterialsService {
       throw new Error('File not found on server');
     }
 
-    return requestedPath;
+    return { url: requestedPath, isExternal: false };
   }
 
   // --- Helper Methods ---

@@ -8,7 +8,6 @@ import { env } from './config/env';
 class SocketService {
   private io: SocketIOServer | null = null;
 
-  // Method untuk menginisialisasi instansiasi Socket.io dengan HTTP Server yang sudah ada
   initialize(httpServer: HttpServer) {
     this.io = new SocketIOServer(httpServer, {
       cors: {
@@ -17,12 +16,36 @@ class SocketService {
       },
     });
 
+    // Middleware Autentikasi Socket
+    this.io.use((socket, next) => {
+      try {
+        const cookieHeader = socket.handshake.headers.cookie;
+        let token = cookieHeader?.split('; ').find(row => row.startsWith('token='))?.split('=')[1];
+        
+        // Fallback untuk auth token
+        if (!token && socket.handshake.auth?.token) {
+          token = socket.handshake.auth.token;
+        }
+
+        if (!token) {
+          return next(new Error('Authentication error: No token provided'));
+        }
+
+        const payload = require('./config/jwt').verifyToken(token);
+        socket.data.userId = payload.userId;
+        next();
+      } catch (err) {
+        next(new Error('Authentication error: Invalid token'));
+      }
+    });
+
     // Event listener ketika klien (socket) baru terhubung
     this.io.on('connection', (socket) => {
-      logger.info(`Socket connected: ${socket.id}`);
+      logger.info(`Socket connected: ${socket.id} for user ${socket.data.userId}`);
 
       // Mendaftarkan klien ke ruang (room) kelompok spesifik
       socket.on('join_group', (groupId: string) => {
+        // Todo: idealnya cek apakah user benar-benar member grup ini
         socket.join(`group_${groupId}`);
         logger.info(`Socket ${socket.id} joined group_${groupId}`);
       });
@@ -34,19 +57,24 @@ class SocketService {
       });
 
       // Mendaftarkan klien ke ruang notifikasi khusus untuk satu pengguna
-      socket.on('join_user', (userId: string) => {
+      // Menggunakan socket.data.userId demi keamanan agar user tak bisa mendengarkan notif user lain
+      socket.on('join_user', () => {
+        const userId = socket.data.userId;
         socket.join(`user_${userId}`);
         logger.info(`Socket ${socket.id} joined user_${userId}`);
       });
 
       // Mendengarkan pesan masuk baru di dalam grup belajar
-      socket.on('send_message', async (data: { studyGroupId: string; userId: string; content: string }) => {
+      socket.on('send_message', async (data: { studyGroupId: string; content: string }) => {
         try {
+          // Menggunakan ID pengguna dari token (mencegah impersonasi)
+          const userId = socket.data.userId;
+
           // Simpan pesan teks secara asinkronus ke database
           const message = await prisma.chatMessage.create({
             data: {
               studyGroupId: data.studyGroupId,
-              userId: data.userId,
+              userId: userId,
               content: data.content,
             },
             include: {

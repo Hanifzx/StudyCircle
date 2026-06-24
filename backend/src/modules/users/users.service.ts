@@ -11,7 +11,7 @@ export async function getProfile(userId: string) {
   return userWithoutPassword;
 }
 
-export async function updateProfile(userId: string, data: { fullName?: string; semester?: number; timezone?: string }) {
+export async function updateProfile(userId: string, data: { fullName?: string; bio?: string; semester?: number; timezone?: string }) {
   const updatedUser = await usersRepo.updateUser(userId, data);
   const { passwordHash: _, ...userWithoutPassword } = updatedUser;
   return userWithoutPassword;
