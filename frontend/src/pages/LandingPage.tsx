@@ -14,7 +14,7 @@ const TESTIMONIALS = [
     colorText: "text-[#B88CB2]",
     content1: "Gila sih, dulu struggle banget nyari temen nugas yang klop. Semenjak pake StudyCircle, langsung dapet ",
     highlight: "circle belajar",
-    content2: " yang se-vibe dan asik parah buat diajak ambis bareng! ✨",
+    content2: " yang se-vibe dan asik parah buat diajak ambis bareng!",
     hoverBorder: "hover:border-[#B88CB2]/40"
   },
   {
@@ -25,7 +25,7 @@ const TESTIMONIALS = [
     colorText: "text-[#8FAFEA]",
     content1: "Fix ini ngebantu banget buat anak nolep kayak aku wkwk. AI-nya pinter banget nyariin ",
     highlight: "circle belajar",
-    content2: " yang jadwal luangnya sama, jadi ga ada lagi wacana belajar doang! 😭🫶",
+    content2: " yang jadwal luangnya sama, jadi ga ada lagi wacana belajar doang!",
     hoverBorder: "hover:border-[#8FAFEA]/40"
   },
   {
@@ -36,7 +36,7 @@ const TESTIMONIALS = [
     colorText: "text-[#B88CB2]",
     content1: "Udah gonta-ganti ",
     highlight: "circle belajar",
-    content2: " tapi pada ga jalan. Ketemu StudyCircle langsung dapet match yang gaya belajarnya sama. Beneran ngebantu naikin IPK banget deh sumpah! 🥺💖",
+    content2: " tapi pada ga jalan. Ketemu StudyCircle langsung dapet match yang gaya belajarnya sama. Beneran ngebantu naikin IPK banget deh sumpah!",
     hoverBorder: "hover:border-[#B88CB2]/40"
   }
 ];

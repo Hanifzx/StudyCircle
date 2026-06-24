@@ -16,6 +16,7 @@ export function CreateSessionModal({ isOpen, onClose, groupId, onCreated }: Crea
   const [scheduledStartTime, setScheduledStartTime] = useState('');
   const [scheduledEndTime, setScheduledEndTime] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isSuggesting, setIsSuggesting] = useState(false);
 
   const createSessionMutation = useCreateSessionMutation();
 
@@ -83,10 +84,12 @@ export function CreateSessionModal({ isOpen, onClose, groupId, onCreated }: Crea
         <div className="flex justify-start">
           <Button
             type="button"
-            variant="info"
+            variant="secondary"
             size="sm"
+            loading={isSuggesting}
             onClick={async () => {
               try {
+                setIsSuggesting(true);
                 const { axiosInstance } = await import('../../../api/axiosInstance');
                 const res = await axiosInstance.get(`/sessions/groups/${groupId}/optimal-schedule`);
                 if (res.data?.data && res.data.data.length > 0) {
@@ -99,13 +102,18 @@ export function CreateSessionModal({ isOpen, onClose, groupId, onCreated }: Crea
                   };
                   setScheduledStartTime(formatLocal(best.scheduledStartTime));
                   setScheduledEndTime(formatLocal(best.scheduledEndTime));
+                } else {
+                  setError("Tidak dapat menemukan waktu optimal saat ini.");
                 }
               } catch (err) {
                 console.error("Failed to get optimal schedule", err);
+                setError("Gagal mendapatkan rekomendasi waktu dari AI.");
+              } finally {
+                setIsSuggesting(false);
               }
             }}
           >
-            ✨ AI Suggest Optimal Time
+            AI Suggest Optimal Time
           </Button>
         </div>
 

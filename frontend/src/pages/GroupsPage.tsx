@@ -37,7 +37,7 @@ export function GroupsPage() {
 
   const tabs = [
     { key: 'all', label: 'Semua' },
-    { key: 'recommended', label: 'Rekomendasi ✨' },
+    { key: 'recommended', label: 'Rekomendasi' },
     { key: 'my_groups', label: 'Grup Saya' },
     { key: 'available', label: 'Tersedia' },
   ];

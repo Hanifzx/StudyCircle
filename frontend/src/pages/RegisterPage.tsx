@@ -35,6 +35,7 @@ export const RegisterPage: React.FC = () => {
       const payload = {
         ...data,
         semester: data.semester ? parseInt(data.semester, 10) : undefined,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
       const response = await authApi.register(payload);
       if (response.success && response.data) {

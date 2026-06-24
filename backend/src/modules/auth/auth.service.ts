@@ -21,6 +21,7 @@ export async function register(data: any) {
     passwordHash,
     fullName: data.fullName,
     semester: data.semester,
+    timezone: data.timezone,
   });
 
   const token = signToken({ userId: user.id });
