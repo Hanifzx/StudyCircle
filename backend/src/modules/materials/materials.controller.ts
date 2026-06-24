@@ -119,7 +119,13 @@ export class MaterialsController {
       const userId = req.user!.userId;
 
       const downloadPath = await this.service.getMaterialDownloadPath(userId, materialId);
-      res.download(downloadPath);
+      const filename = path.basename(downloadPath);
+      
+      if (req.query.preview === 'true') {
+        res.sendFile(downloadPath, { dotfiles: 'allow' });
+      } else {
+        res.download(downloadPath, filename, { dotfiles: 'allow' });
+      }
     } catch (error: any) {
       // Return 403 or 404 for security depending on if they are a member, but our service throws Error
       res.status(400).json({ error: error.message });

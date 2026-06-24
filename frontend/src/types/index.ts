@@ -83,7 +83,7 @@ export interface Subject {
 export interface CreateGroupPayload {
   name: string;
   description?: string;
-  subjectId: string;
+  subjectName: string;
   maxMembers?: number;
 }
 

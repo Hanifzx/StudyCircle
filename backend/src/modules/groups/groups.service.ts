@@ -1,6 +1,7 @@
 // File service untuk modul Groups
 import { GroupsRepository } from './groups.repository';
 import { Prisma } from '@prisma/client';
+import { prisma } from '../../config/database';
 
 export class GroupsService {
   private repository: GroupsRepository;
@@ -9,13 +10,33 @@ export class GroupsService {
     this.repository = new GroupsRepository();
   }
 
-  async createGroup(userId: string, data: { name: string; subjectId: string; description?: string; maxMembers?: number }) {
+  async createGroup(userId: string, data: { name: string; subjectName: string; description?: string; maxMembers?: number }) {
+    // Cari subject berdasarkan nama (case-insensitive) atau buat baru
+    let subject = await prisma.subject.findFirst({
+      where: {
+        name: {
+          equals: data.subjectName,
+          mode: 'insensitive'
+        }
+      }
+    });
+
+    if (!subject) {
+      // Buat subject baru jika belum ada
+      subject = await prisma.subject.create({
+        data: {
+          name: data.subjectName,
+          code: `SUBJ-${Date.now().toString().slice(-6)}`
+        }
+      });
+    }
+
     // 1. Group creator automatically becomes group admin
     const groupData: Prisma.StudyGroupCreateInput = {
       name: data.name,
       description: data.description,
       maxMembers: data.maxMembers,
-      subject: { connect: { id: data.subjectId } },
+      subject: { connect: { id: subject.id } },
       creator: { connect: { id: userId } },
       members: {
         create: {

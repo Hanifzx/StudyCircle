@@ -20,6 +20,7 @@ app.use(helmet());
 app.use(cors({
   origin: env.FRONTEND_URL, // Ensure frontend origin is allowed for credentials
   credentials: true,
+  exposedHeaders: ['Content-Disposition'],
 }));
 
 // Rate Limiting: Membatasi jumlah request dari satu IP untuk mencegah spam/DDoS

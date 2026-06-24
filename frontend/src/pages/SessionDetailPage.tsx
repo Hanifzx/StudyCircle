@@ -304,6 +304,8 @@ export function SessionDetailPage() {
                     <td className="py-2.5 px-4 text-gray-400">
                       {att.durationMinutes != null
                         ? `${att.durationMinutes} min`
+                        : att.status === 'active'
+                        ? `${Math.floor((new Date().getTime() - new Date(att.joinedAt).getTime()) / 60000)} min (berjalan)`
                         : '—'}
                     </td>
                   </tr>

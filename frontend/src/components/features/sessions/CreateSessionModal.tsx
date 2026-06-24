@@ -92,7 +92,7 @@ export function CreateSessionModal({ isOpen, onClose, groupId, onCreated }: Crea
               try {
                 setIsSuggesting(true);
                 const { axiosInstance } = await import('../../../api/axiosInstance');
-                const res = await axiosInstance.get(`/sessions/groups/${groupId}/optimal-schedule`);
+                const res = await axiosInstance.get(`/groups/${groupId}/sessions/optimal-schedule`);
                 if (res.data?.data && res.data.data.length > 0) {
                   const best = res.data.data[0];
                   // format to YYYY-MM-DDTHH:mm

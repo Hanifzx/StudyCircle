@@ -183,13 +183,13 @@ export function GroupDetailPage() {
     }
   };
 
-  const downloadMaterial = async (materialId: string) => {
+  const downloadMaterial = async (materialId: string, fallbackName?: string) => {
     try {
       const response = await materialsApi.downloadMaterial(materialId);
       const blob = new Blob([response.data]);
       const url = window.URL.createObjectURL(blob);
       const contentDisposition = response.headers['content-disposition'];
-      let filename = 'download';
+      let filename = fallbackName || 'download';
       if (contentDisposition) {
         const match = contentDisposition.match(/filename="?(.+?)"?$/);
         if (match) filename = match[1];
@@ -205,6 +205,19 @@ export function GroupDetailPage() {
       console.error('Download error', err);
     }
   };
+
+  const previewMaterial = async (materialId: string) => {
+    try {
+      const response = await materialsApi.downloadMaterial(materialId, { preview: true });
+      const blob = new Blob([response.data], { type: response.data.type || 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000 * 60 * 5); // Revoke after 5 mins
+    } catch (err) {
+      console.error('Preview error', err);
+    }
+  };
+
 
   if (!group) return null;
 
@@ -371,6 +384,12 @@ export function GroupDetailPage() {
               description="Anda harus login untuk melihat dan mengirim pesan di grup ini."
               action={<Button onClick={() => navigate('/login')}>Login untuk Bergabung</Button>}
             />
+          ) : !isMember ? (
+            <EmptyState
+              icon={<Users className="w-12 h-12" />}
+              title="Bergabung Diperlukan"
+              description="Anda harus bergabung sebagai anggota grup untuk melihat dan mengirim pesan."
+            />
           ) : (
             <GroupChat groupId={groupId} />
           )
@@ -402,7 +421,8 @@ export function GroupDetailPage() {
                           key={material.id}
                           material={material}
                           canDelete={isAdmin || material.uploaderId === user?.id}
-                          onDownload={() => downloadMaterial(material.id)}
+                          onDownload={() => downloadMaterial(material.id, material.title)}
+                          onPreview={() => previewMaterial(material.id)}
                           onDelete={() => setMaterialToDelete(material.id)}
                         />
                       ))}

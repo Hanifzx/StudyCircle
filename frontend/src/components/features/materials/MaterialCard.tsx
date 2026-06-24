@@ -1,5 +1,5 @@
 // Komponen ini merupakan bagian dari antarmuka pengguna
-import { Download, Trash2, FileText, FileSpreadsheet, Presentation } from 'lucide-react';
+import { Download, Trash2, FileText, FileSpreadsheet, Presentation, Eye } from 'lucide-react';
 import { Card } from '../../common/Card';
 import { Button } from '../../common/Button';
 import { formatDate } from '../../../utils/formatDate';
@@ -10,6 +10,7 @@ interface MaterialCardProps {
   material: Material;
   canDelete: boolean;
   onDownload: () => void;
+  onPreview?: () => void;
   onDelete: () => void;
 }
 
@@ -23,7 +24,7 @@ function getFileIcon(fileType?: string) {
   return <FileText className="w-8 h-8 text-indigo-400" />;
 }
 
-export function MaterialCard({ material, canDelete, onDownload, onDelete }: MaterialCardProps) {
+export function MaterialCard({ material, canDelete, onDownload, onPreview, onDelete }: MaterialCardProps) {
   return (
     <Card className="p-5">
       <div className="flex gap-4">
@@ -57,6 +58,11 @@ export function MaterialCard({ material, canDelete, onDownload, onDelete }: Mate
 
         {/* Actions */}
         <div className="shrink-0 flex items-start gap-2">
+          {onPreview && (
+            <Button variant="secondary" size="sm" onClick={onPreview} aria-label={`Pratinjau ${material.title}`}>
+              <Eye className="w-4 h-4" />
+            </Button>
+          )}
           <Button variant="secondary" size="sm" onClick={onDownload} aria-label={`Unduh ${material.title}`}>
             <Download className="w-4 h-4" />
           </Button>
