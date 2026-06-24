@@ -7,6 +7,7 @@ export const registerSchema = z.object({
     password: z.string().min(6),
     fullName: z.string().min(2),
     semester: z.number().int().positive().optional(),
+    timezone: z.string().optional(),
   }),
 });
 

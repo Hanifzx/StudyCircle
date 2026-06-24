@@ -82,7 +82,7 @@ export function DashboardPage() {
           Selamat Datang, {user?.fullName?.split(' ')[0] ?? 'Mahasiswa'}!
         </h1>
         <p className="text-gray-400 text-lg flex items-center gap-2">
-          Siap untuk sesi belajar hari ini? 🚀
+          Siap untuk sesi belajar hari ini?
         </p>
       </div>
 

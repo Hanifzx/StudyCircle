@@ -116,5 +116,3 @@ Thumbs.db
 # Prisma database files
 /backend/prisma/*.db
 /backend/prisma/*.db-journal
-
-backend/uploads/

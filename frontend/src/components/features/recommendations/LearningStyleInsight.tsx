@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card } from '../../common/Card';
+import { Lightbulb, Brain, Eye, Headphones, PenTool, Hand } from 'lucide-react';
 
 interface LearningStyleInsightProps {
   learningStyle?: string | null;
@@ -10,7 +11,7 @@ export const LearningStyleInsight: React.FC<LearningStyleInsightProps> = ({ lear
     return (
       <Card className="bg-gradient-to-br from-[#0B0F19]/80 to-purple-900/10 border-purple-500/20 backdrop-blur-md">
         <div className="flex items-start space-x-4">
-          <div className="text-4xl animate-pulse-glow">💡</div>
+          <div className="text-4xl animate-pulse-glow text-purple-400"><Lightbulb className="w-8 h-8" /></div>
           <div>
             <h3 className="text-lg font-bold text-white">
               Unlock Smart Recommendations!
@@ -24,36 +25,36 @@ export const LearningStyleInsight: React.FC<LearningStyleInsightProps> = ({ lear
     );
   }
 
-  let icon = '🧠';
-  let recommended = [];
+  let IconComponent = Brain;
+  let recommended: string[] = [];
 
   switch (learningStyle.toLowerCase()) {
     case 'visual':
-      icon = '👁️';
+      IconComponent = Eye;
       recommended = ['Diagrams', 'Slides', 'Mind Maps', 'Videos'];
       break;
     case 'auditory':
-      icon = '🎧';
+      IconComponent = Headphones;
       recommended = ['Discussions', 'Podcasts', 'Audio Notes', 'Debates'];
       break;
     case 'reading/writing':
     case 'reading':
-      icon = '📝';
+      IconComponent = PenTool;
       recommended = ['Textbooks', 'Essays', 'Study Notes', 'Summaries'];
       break;
     case 'kinesthetic':
-      icon = '🤚';
+      IconComponent = Hand;
       recommended = ['Practice Exams', 'Interactive Labs', 'Code Snippets', 'Roleplay'];
       break;
     default:
-      icon = '🧠';
+      IconComponent = Brain;
       recommended = ['Mixed Materials', 'Peer Discussions', 'Practice Quizzes'];
   }
 
   return (
     <Card className="bg-gradient-to-br from-[#0B0F19]/80 to-cyan-900/10 border-cyan-500/20 backdrop-blur-md h-full">
       <div className="flex items-start space-x-4">
-        <div className="text-4xl animate-pulse-glow">{icon}</div>
+        <div className="text-4xl animate-pulse-glow text-cyan-400"><IconComponent className="w-8 h-8" /></div>
         <div>
           <h3 className="text-lg font-bold text-white">
             You are a <span className="bg-clip-text text-transparent bg-gradient-to-r from-cyan-400 to-blue-400">{learningStyle}</span> Learner

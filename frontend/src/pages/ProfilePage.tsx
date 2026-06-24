@@ -19,7 +19,7 @@ export function ProfilePage() {
   const profile = data || (isLoading ? {
     fullName: 'Nama Pengguna Placeholder',
     bio: 'Deskripsi singkat profil pengguna yang cukup panjang agar phantom ui dapat menggambar rangka blok dengan ukuran yang proporsional.',
-    timezone: 'Asia/Jakarta',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     username: 'username_placeholder',
     email: 'email@placeholder.com',
     semester: 4,
@@ -41,7 +41,7 @@ export function ProfilePage() {
     if (profile) {
       setEditName(profile.fullName);
       setEditBio(profile.bio ?? '');
-      setEditTimezone(profile.timezone ?? 'Asia/Jakarta');
+      setEditTimezone(profile.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone);
     }
   }, [profile]);
 
