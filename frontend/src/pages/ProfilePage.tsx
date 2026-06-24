@@ -1,3 +1,4 @@
+// File ini berisi komponen untuk halaman ProfilePage
 import { useState, useEffect } from 'react';
 import { User, Mail, GraduationCap, Pencil } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -19,7 +20,7 @@ export function ProfilePage() {
   const profile = data || (isLoading ? {
     fullName: 'Nama Pengguna Placeholder',
     bio: 'Deskripsi singkat profil pengguna yang cukup panjang agar phantom ui dapat menggambar rangka blok dengan ukuran yang proporsional.',
-    timezone: 'Asia/Jakarta',
+    timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
     username: 'username_placeholder',
     email: 'email@placeholder.com',
     semester: 4,
@@ -38,16 +39,16 @@ export function ProfilePage() {
 
   // Sync edit state values when profile query loads
   useEffect(() => {
-    if (profile) {
-      setEditName(profile.fullName);
-      setEditBio(profile.bio ?? '');
-      setEditTimezone(profile.timezone ?? 'Asia/Jakarta');
+    if (data) {
+      setEditName(data.fullName);
+      setEditBio(data.bio ?? '');
+      setEditTimezone(data.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone);
     }
-  }, [profile]);
+  }, [data]);
 
   const handleSaveProfile = async () => {
     try {
-      await updateProfileMutation.mutateAsync({ name: editName.trim(), bio: editBio.trim(), timezone: editTimezone });
+      await updateProfileMutation.mutateAsync({ fullName: editName.trim(), bio: editBio.trim(), timezone: editTimezone });
       setIsEditing(false);
       gooeyToast.success('Profil berhasil diperbarui');
     } catch (err: any) {
@@ -145,6 +146,7 @@ export function ProfilePage() {
                       setIsEditing(false);
                       setEditName(profile?.fullName ?? '');
                       setEditBio(profile?.bio ?? '');
+                      setEditTimezone(profile?.timezone ?? Intl.DateTimeFormat().resolvedOptions().timeZone);
                     }}
                   >
                     Cancel

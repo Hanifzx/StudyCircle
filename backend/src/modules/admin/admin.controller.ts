@@ -1,7 +1,6 @@
+// Controller untuk fungsionalitas admin (statistik, kelola pengguna dan grup)
 import { Request, Response, NextFunction } from 'express';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../../config/database';
 
 export class AdminController {
   async getStats(req: Request, res: Response, next: NextFunction) {

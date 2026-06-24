@@ -117,4 +117,5 @@ Thumbs.db
 /backend/prisma/*.db
 /backend/prisma/*.db-journal
 
-backend/uploads/
+# Backend Uploads
+/backend/uploads/

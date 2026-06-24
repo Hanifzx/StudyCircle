@@ -1,3 +1,4 @@
+// File ini berisi komponen untuk halaman DashboardPage
 import { useState, useMemo } from 'react';
 import { X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -32,7 +33,6 @@ export function DashboardPage() {
     { key: 'all', label: 'Semua' },
     { key: 'available', label: 'Tersedia' },
     { key: 'full', label: 'Penuh' },
-    { key: 'my_major', label: 'Jurusan Saya' },
   ];
 
   const filteredGroups = useMemo(() => {
@@ -45,9 +45,6 @@ export function DashboardPage() {
       case 'full':
         result = result.filter(g => (g._count?.members ?? 0) >= g.maxMembers);
         break;
-      case 'my_major':
-        // Assuming user.major exists, otherwise fallback
-        break;
       default:
         break;
     }
@@ -55,14 +52,8 @@ export function DashboardPage() {
     return result;
   }, [groups, activeTab]);
 
-  // Identify "My Groups" based on membership
-  const myGroups = groups.filter(g => g.members?.some((m: any) => m.userId === user?.id));
-  const upcomingSessionGroup = isLoading ? {
-    id: 'dummy',
-    name: 'Nama Sesi Belajar Placeholder',
-    maxMembers: 10,
-    _count: { members: 0 },
-  } : (myGroups[0] || groups[0]);
+  // Sesi terdekat feature requires a dedicated backend endpoint which is not yet available.
+  const upcomingSessionGroup = null;
 
   const displayGroups = isLoading 
     ? Array.from({ length: 6 }).map((_, i) => ({
@@ -82,7 +73,7 @@ export function DashboardPage() {
           Selamat Datang, {user?.fullName?.split(' ')[0] ?? 'Mahasiswa'}!
         </h1>
         <p className="text-gray-400 text-lg flex items-center gap-2">
-          Siap untuk sesi belajar hari ini? 🚀
+          Siap untuk sesi belajar hari ini?
         </p>
       </div>
 

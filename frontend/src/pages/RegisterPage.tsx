@@ -1,3 +1,4 @@
+// File ini berisi komponen untuk halaman RegisterPage
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, Mail, Lock, BookOpen, Eye, EyeOff, ArrowRight } from 'lucide-react';
@@ -35,6 +36,7 @@ export const RegisterPage: React.FC = () => {
       const payload = {
         ...data,
         semester: data.semester ? parseInt(data.semester, 10) : undefined,
+        timezone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       };
       const response = await authApi.register(payload);
       if (response.success && response.data) {

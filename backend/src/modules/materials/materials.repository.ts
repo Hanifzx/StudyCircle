@@ -1,6 +1,6 @@
-import { PrismaClient, Prisma } from '@prisma/client';
-
-const prisma = new PrismaClient();
+// File repository untuk modul Materials
+import { Prisma } from '@prisma/client';
+import { prisma } from '../../config/database';
 
 export class MaterialsRepository {
   async createMaterial(data: Prisma.MaterialCreateInput) {

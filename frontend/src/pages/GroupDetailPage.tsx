@@ -1,3 +1,4 @@
+// File ini berisi komponen untuk halaman GroupDetailPage
 import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Pencil, Trash2, LogOut, Users, BookOpen, Calendar, Plus } from 'lucide-react';
@@ -92,11 +93,11 @@ export function GroupDetailPage() {
 
   // Set form fields once data loads
   useEffect(() => {
-    if (group) {
-      setEditName(group.name);
-      setEditDesc(group.description ?? '');
+    if (groupDetail?.data) {
+      setEditName(groupDetail.data.name);
+      setEditDesc(groupDetail.data.description ?? '');
     }
-  }, [group]);
+  }, [groupDetail?.data]);
 
   // Handle Real-Time Notifications
   useEffect(() => {
@@ -113,6 +114,7 @@ export function GroupDetailPage() {
 
     return () => {
       socketService.getSocket()?.off('material_uploaded');
+      socketService.leaveGroup(groupId);
     };
   }, [groupId, queryClient]);
 
@@ -197,13 +199,13 @@ export function GroupDetailPage() {
     }
   };
 
-  const downloadMaterial = async (materialId: string) => {
+  const downloadMaterial = async (materialId: string, fallbackName?: string) => {
     try {
       const response = await materialsApi.downloadMaterial(materialId);
       const blob = new Blob([response.data]);
       const url = window.URL.createObjectURL(blob);
       const contentDisposition = response.headers['content-disposition'];
-      let filename = 'download';
+      let filename = fallbackName || 'download';
       if (contentDisposition) {
         const match = contentDisposition.match(/filename="?(.+?)"?$/);
         if (match) filename = match[1];
@@ -215,10 +217,25 @@ export function GroupDetailPage() {
       link.click();
       document.body.removeChild(link);
       window.URL.revokeObjectURL(url);
-    } catch (err) {
+    } catch (err: any) {
       console.error('Download error', err);
+      gooeyToast.error(err.response?.data?.error || 'Gagal mengunduh materi. Silakan coba lagi.');
     }
   };
+
+  const previewMaterial = async (materialId: string) => {
+    try {
+      const response = await materialsApi.downloadMaterial(materialId, { preview: true });
+      const blob = new Blob([response.data], { type: response.data.type || 'application/pdf' });
+      const url = window.URL.createObjectURL(blob);
+      window.open(url, '_blank');
+      setTimeout(() => window.URL.revokeObjectURL(url), 1000 * 60 * 5); // Revoke after 5 mins
+    } catch (err: any) {
+      console.error('Preview error', err);
+      gooeyToast.error(err.response?.data?.error || 'Gagal membuka pratinjau materi. Silakan coba lagi.');
+    }
+  };
+
 
   if (!group) return null;
 
@@ -414,7 +431,8 @@ export function GroupDetailPage() {
                           key={material.id}
                           material={material}
                           canDelete={isAdmin || material.uploaderId === user?.id}
-                          onDownload={() => downloadMaterial(material.id)}
+                          onDownload={() => downloadMaterial(material.id, material.title)}
+                          onPreview={() => previewMaterial(material.id)}
                           onDelete={() => setMaterialToDelete(material.id)}
                         />
                       ))}

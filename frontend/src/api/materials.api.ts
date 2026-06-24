@@ -1,3 +1,6 @@
+/**
+ * Definisi API untuk mengelola materi pembelajaran di grup.
+ */
 import { axiosInstance } from './axiosInstance';
 
 export const materialsApi = {
@@ -15,8 +18,9 @@ export const materialsApi = {
     return response.data;
   },
 
-  downloadMaterial: async (materialId: string) => {
-    const response = await axiosInstance.get(`/materials/${materialId}/download`, {
+  downloadMaterial: async (materialId: string, options?: { preview?: boolean }) => {
+    const url = `/materials/${materialId}/download${options?.preview ? '?preview=true' : ''}`;
+    const response = await axiosInstance.get(url, {
       responseType: 'blob',
     });
     return response;

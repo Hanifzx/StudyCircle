@@ -9,6 +9,7 @@ export interface User {
   fullName: string;
   semester?: number;
   bio?: string;
+  timezone?: string;
   role: 'USER' | 'ADMIN';
   level: number;
   points: number;
@@ -22,6 +23,7 @@ export interface UserProfile {
   fullName: string;
   semester: number | null;
   bio?: string;
+  timezone?: string;
   role: 'USER' | 'ADMIN';
   level: number;
   points: number;
@@ -83,7 +85,7 @@ export interface Subject {
 export interface CreateGroupPayload {
   name: string;
   description?: string;
-  subjectId: string;
+  subjectName: string;
   maxMembers?: number;
 }
 

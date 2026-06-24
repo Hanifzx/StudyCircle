@@ -1,6 +1,6 @@
-import { PrismaClient, Prisma } from '@prisma/client';
-
-const prisma = new PrismaClient();
+// Repository untuk interaksi database terkait progres
+import { Prisma } from '@prisma/client';
+import { prisma } from '../../config/database';
 
 export class ProgressRepository {
   async findProgress(userId: string, subjectId: string) {

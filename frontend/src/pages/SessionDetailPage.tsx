@@ -1,4 +1,5 @@
-import { useState, useMemo } from 'react';
+// File ini berisi komponen untuk halaman SessionDetailPage
+import { useState, useEffect, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { ArrowLeft, Clock, Users, XCircle, Trash2, Video } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
@@ -62,7 +63,13 @@ export function SessionDetailPage() {
   }, [session]);
 
   const isCreator = useMemo(() => session?.createdBy === user?.id, [session, user]);
-  const now = new Date();
+  
+  const [now, setNow] = useState(new Date());
+  useEffect(() => {
+    const timer = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(timer);
+  }, []);
+
   const hasEnded = useMemo(() => session ? new Date(session.scheduledEndTime) < now : false, [session, now]);
   const isCancelled = useMemo(() => session?.status === 'cancelled', [session]);
 
@@ -303,6 +310,8 @@ export function SessionDetailPage() {
                     <td className="py-2.5 px-4 text-gray-400">
                       {att.durationMinutes != null
                         ? `${att.durationMinutes} min`
+                        : att.status === 'active'
+                        ? `${Math.floor((now.getTime() - new Date(att.joinedAt).getTime()) / 60000)} min (berjalan)`
                         : '—'}
                     </td>
                   </tr>

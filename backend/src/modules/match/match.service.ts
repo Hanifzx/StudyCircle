@@ -1,6 +1,5 @@
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+// Service untuk logika bisnis pencocokan grup belajar berdasarkan kriteria pengguna
+import { prisma } from '../../config/database';
 
 export class MatchService {
   async getRecommendations(userId: string, subjectId?: string) {

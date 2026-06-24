@@ -1,3 +1,4 @@
+// Komponen ini merupakan bagian dari antarmuka pengguna
 import React, { useState, useRef, useEffect } from 'react';
 import { Menu, LogOut, Bell, Check, Trash2, Calendar, BookOpen, Shield } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth';
@@ -38,7 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onMenuToggle }) => {
   }, []);
 
   return (
-    <header role="banner" className="fixed top-0 right-0 left-0 lg:left-60 z-30 h-16 bg-[#0B0F19]/60 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-4 sm:px-6 shadow-sm">
+    <header role="banner" className="fixed top-0 right-0 left-0 lg:left-64 z-30 h-16 bg-[#0B0F19]/60 backdrop-blur-xl border-b border-white/5 flex items-center justify-between px-4 sm:px-6 shadow-sm">
       {/* Left section */}
       <div className="flex items-center gap-3">
         {/* Hamburger – visible below lg */}

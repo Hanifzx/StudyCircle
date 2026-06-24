@@ -1,7 +1,11 @@
+/**
+ * Konfigurasi dan layanan klien Socket.IO untuk komunikasi real-time.
+ */
 import { io, Socket } from 'socket.io-client';
 
+// Remove /api/v1 suffix if present for the Socket.IO server URL
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
-const SOCKET_URL = API_URL.replace(/\/api\/v\d+\/?$/, '') || 'http://localhost:5000';
+const SOCKET_URL = import.meta.env.VITE_SOCKET_URL || API_URL.replace(/\/api\/v1\/?$/, '') || 'http://localhost:5000';
 
 class SocketService {
   private socket: Socket | null = null;

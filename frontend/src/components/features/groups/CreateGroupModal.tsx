@@ -1,3 +1,4 @@
+// Komponen ini merupakan bagian dari antarmuka pengguna
 import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Modal } from '../../common/Modal';
@@ -15,7 +16,7 @@ interface CreateGroupModalProps {
 export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const [subjectId, setSubjectId] = useState('');
+  const [subjectName, setSubjectName] = useState('');
   const [maxMembers, setMaxMembers] = useState('');
   const [error, setError] = useState<string | null>(null);
 
@@ -30,20 +31,20 @@ export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModa
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !subjectId.trim()) return;
+    if (!name.trim() || !subjectName.trim()) return;
 
     try {
       setError(null);
       await createGroupMutation.mutateAsync({
         name: name.trim(),
         description: description.trim() || undefined,
-        subjectId: subjectId.trim(),
+        subjectName: subjectName.trim(),
         maxMembers: maxMembers ? parseInt(maxMembers, 10) : undefined,
       });
       // Reset form
       setName('');
       setDescription('');
-      setSubjectId('');
+      setSubjectName('');
       setMaxMembers('');
       if (onCreated) onCreated();
       onClose();
@@ -71,27 +72,25 @@ export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModa
         />
 
         <div className="flex flex-col gap-1.5">
-          <label htmlFor="subjectId" className="text-sm font-medium text-gray-300">
-            Mata Kuliah
+          <label htmlFor="subjectName" className="text-sm font-medium text-gray-300">
+            Mata Kuliah / Pelajaran
           </label>
-          <select
-            id="subjectId"
-            name="subjectId"
-            value={subjectId}
-            onChange={(e) => setSubjectId(e.target.value)}
+          <input
+            id="subjectName"
+            name="subjectName"
+            list="subjects-list"
+            value={subjectName}
+            onChange={(e) => setSubjectName(e.target.value)}
             className="w-full px-3.5 py-2.5 rounded-lg bg-dark-bg text-white border border-dark-border focus:ring-2 focus:ring-primary-500 focus:border-primary-500 focus:outline-none transition-all duration-200 text-sm"
+            placeholder={loadingSubjects ? 'Memuat saran...' : 'Ketik mata kuliah atau pilih saran...'}
             required
-            disabled={loadingSubjects}
-          >
-            <option value="" disabled>
-              {loadingSubjects ? 'Memuat mata kuliah...' : 'Pilih mata kuliah'}
-            </option>
+            autoComplete="off"
+          />
+          <datalist id="subjects-list">
             {subjects.map((subject) => (
-              <option key={subject.id} value={subject.id}>
-                {subject.code} {subject.name}
-              </option>
+              <option key={subject.id} value={subject.name} />
             ))}
-          </select>
+          </datalist>
         </div>
 
         <div className="flex flex-col gap-1.5">
@@ -122,7 +121,7 @@ export function CreateGroupModal({ isOpen, onClose, onCreated }: CreateGroupModa
           <Button type="button" variant="ghost" onClick={onClose} disabled={createGroupMutation.isPending}>
             Batal
           </Button>
-          <Button type="submit" loading={createGroupMutation.isPending} disabled={!name.trim() || !subjectId.trim()}>
+          <Button type="submit" loading={createGroupMutation.isPending} disabled={!name.trim() || !subjectName.trim()}>
             Buat Grup
           </Button>
         </div>

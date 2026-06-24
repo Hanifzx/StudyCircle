@@ -1,3 +1,6 @@
+/**
+ * Definisi API untuk manajemen profil pengguna.
+ */
 import { axiosInstance } from './axiosInstance';
 
 export const usersApi = {
@@ -6,7 +9,7 @@ export const usersApi = {
     return response.data;
   },
 
-  updateProfile: async (data: { name?: string; bio?: string; timezone?: string }) => {
+  updateProfile: async (data: { fullName?: string; bio?: string; timezone?: string }) => {
     const response = await axiosInstance.put('/users/profile', data);
     return response.data;
   },

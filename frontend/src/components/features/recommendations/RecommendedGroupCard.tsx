@@ -1,3 +1,4 @@
+// Komponen ini merupakan bagian dari antarmuka pengguna
 import React, { useState } from 'react';
 import { Card } from '../../common/Card';
 import { Button } from '../../common/Button';
@@ -51,7 +52,7 @@ export const RecommendedGroupCard: React.FC<RecommendedGroupCardProps> = ({ grou
           <div className="flex flex-wrap gap-2 mb-4 text-left">
             {group.matchReasons.map((reason, idx) => (
               <span key={idx} className="text-xs font-medium text-indigo-300 bg-indigo-500/10 border border-indigo-500/20 px-2.5 py-1 rounded-full">
-                ✨ {reason}
+                {reason}
               </span>
             ))}
           </div>

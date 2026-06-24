@@ -1,3 +1,4 @@
+// File ini berisi komponen untuk halaman GroupsPage
 import { useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Search, Plus, Users } from 'lucide-react';
@@ -37,7 +38,7 @@ export function GroupsPage() {
 
   const tabs = [
     { key: 'all', label: 'Semua' },
-    { key: 'recommended', label: 'Rekomendasi ✨' },
+    { key: 'recommended', label: 'Rekomendasi' },
     { key: 'my_groups', label: 'Grup Saya' },
     { key: 'available', label: 'Tersedia' },
   ];

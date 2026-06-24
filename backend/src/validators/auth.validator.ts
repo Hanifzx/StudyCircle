@@ -1,3 +1,4 @@
+// Validator untuk memvalidasi data input pada proses autentikasi (login, register)
 import { z } from 'zod';
 
 export const registerSchema = z.object({
@@ -7,6 +8,7 @@ export const registerSchema = z.object({
     password: z.string().min(6),
     fullName: z.string().min(2),
     semester: z.number().int().positive().optional(),
+    timezone: z.string().optional(),
   }),
 });
 
